@@ -1,4 +1,5 @@
 import { evaluate, format, typeOf } from 'mathjs'
+import L from 'src/L';
 import type { HandlerParams } from 'src/types';
 
 export const calc = {
@@ -13,7 +14,7 @@ export const calc = {
 		}
 		return '';
 	},
-	desc: 'calculate math expression',
+	desc: L.actions.calc(),
 	test: '^[^\n]+$',
 	handler: ({action, replace}: HandlerParams) => {
 		replace(action.name as string)

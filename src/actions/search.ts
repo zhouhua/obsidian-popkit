@@ -1,7 +1,9 @@
+import L from "src/L"
+
 export const find = {
 	icon: 'Search',
 	name: 'find',
-	desc: 'find',
+	desc: L.actions.find(),
 	test: '.+',
 	command: 'editor:open-search'
 }
@@ -9,7 +11,7 @@ export const find = {
 export const replace = {
 	icon: 'Replace',
 	name: 'replace',
-	desc: 'replace',
+	desc: L.actions.replace(),
 	test: '.+',
 	command: 'editor:open-search-replace'
 }
@@ -17,7 +19,7 @@ export const replace = {
 export const search = {
 	icon: 'ScanSearch',
 	name: 'global search',
-	desc: 'global search',
+	desc: L.actions.search(),
 	test: '.+',
 	command: 'global-search:open'
 }

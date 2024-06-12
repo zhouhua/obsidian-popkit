@@ -1,6 +1,8 @@
+import L from "src/L";
+
 export const bold = {
 	name: 'bold',
-	desc: 'blod',
+	desc: L.actions.bold(),
 	icon: 'Bold',
 	test: '.+',
 	command: 'editor:toggle-bold'
@@ -8,7 +10,7 @@ export const bold = {
 
 export const italic = {
 	name: 'italic',
-	desc: 'italics',
+	desc: L.actions.italic(),
 	icon: 'Italic',
 	test: '.+',
 	command: 'editor:toggle-italics'
@@ -16,7 +18,7 @@ export const italic = {
 
 export const comment = {
 	name: 'comment',
-	desc: 'comment',
+	desc: L.actions.comment(),
 	icon: 'MessageSquareText',
 	test: '.+',
 	command: 'editor:toggle-comments'
@@ -24,7 +26,7 @@ export const comment = {
 
 export const strikethrough = {
 	name: 'strikethrough',
-	desc: 'strikethrough',
+	desc: L.actions.strikethrough(),
 	icon: 'Strikethrough',
 	test: '.+',
 	command: 'editor:toggle-strikethrough'
@@ -32,21 +34,21 @@ export const strikethrough = {
 
 export const addAttach = {
 	name: 'add attachment',
-	desc: 'add attachment',
+	desc: L.actions.addAttach(),
 	icon: 'Paperclip',
 	command: 'editor:attach-file'
 };
 
 export const blockquote = {
 	name: 'blockquote',
-	desc: 'blockquote',
+	desc: L.actions.blockquote(),
 	icon: 'RemoveFormatting',
 	command: 'editor:toggle-blockquote'
 };
 
 export const clearFormat = {
 	name: 'clear format',
-	desc: 'clear format',
+	desc: L.actions.clearFormat(),
 	icon: 'Quote',
 	command: 'editor:clear-formatting'
 };

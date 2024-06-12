@@ -1,12 +1,13 @@
 import type { HandlerParams } from "src/types";
 import dayjs from 'dayjs';
+import L from "src/L";
 
 export const date = {
 	name: () => {
 		const date = dayjs();
 		return date.format('YYYY-MM-DD');
 	},
-	desc: 'paste date',
+	desc: L.actions.date(),
 	handler: ({action, replace}: HandlerParams) => {
 		replace(action.name as string);
 	}
@@ -17,6 +18,6 @@ export const time = {
 		const date = dayjs();
 		return date.format('HH:mm:ss');
 	},
-	desc: 'paste time',
+	desc: L.actions.time(),
 	handler: ({action, replace}: HandlerParams) => replace(action.name as string)
 }

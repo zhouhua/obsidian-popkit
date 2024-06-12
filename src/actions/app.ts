@@ -1,9 +1,10 @@
+import L from "src/L"
 import type { HandlerParams } from "src/types"
 
 export const openHelp = {
 	icon: 'CircleHelp',
 	name: 'help',
-	desc: 'open obsidian help',
+	desc: L.actions.help(),
 	test: '^$',
 	command: 'app:open-help'
 }
@@ -11,7 +12,7 @@ export const openHelp = {
 export const openSetting = {
 	icon: 'Settings',
 	name: 'setting',
-	desc: 'open obsidian setting',
+	desc: L.actions.setting(),
 	test: '^$',
 	command: 'app:open-setting'
 }
@@ -19,7 +20,7 @@ export const openSetting = {
 export const addBookmark = {
 	icon: 'BookmarkCheck',
 	name: 'add bookmark',
-	desc: 'add bookmark',
+	desc: L.actions.addBookmark(),
 	handler: ({selection, app}: HandlerParams) => {
 		app.commands.executeCommandById(selection ? 'bookmarks:bookmark-current-section': 'bookmarks:bookmark-current-view')
 	}
@@ -28,7 +29,7 @@ export const addBookmark = {
 export const openBookmark = {
 	icon: 'BookMarked',
 	name: 'open bookmark',
-	desc: 'open bookmark',
+	desc: L.actions.openBookmark(),
 	test: '^$',
 	command: 'bookmarks:open'
 }
@@ -36,7 +37,7 @@ export const openBookmark = {
 export const lineUp = {
 	icon: 'CornerRightUp',
 	name: 'line up',
-	desc: 'move line up',
+	desc: L.actions.lineUp(),
 	test: '^$',
 	command: 'editor:swap-line-up'
 }
@@ -44,7 +45,7 @@ export const lineUp = {
 export const lineDown = {
 	icon: 'CornerRightDown',
 	name: 'line down',
-	desc: 'move line down',
+	desc: L.actions.lineDown(),
 	test: '^$',
 	command: 'editor:swap-line-down'
 }
@@ -52,7 +53,7 @@ export const lineDown = {
 export const highlight= {
 	icon: 'Highlighter',
 	name: 'highlight',
-	desc: 'highlight',
+	desc: L.actions.highlight(),
 	test: '.+',
 	command: ['editor:toggle-highlight']
 };

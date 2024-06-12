@@ -1,7 +1,56 @@
 import type { BaseTranslation } from "../i18n-types";
 
 const en: BaseTranslation = {
-	// TODO: your translations go here
+	actions: {
+		help: 'Open obsidian help',
+		setting: 'Open obsidian setting',
+		addBookmark: 'Add bookmark',
+		openBookmark: 'Open bookmark',
+		lineUp: 'Move line up',
+		lineDown: 'Move line down',
+		highlight: 'Toggle highlight',
+		bold: 'Bold',
+		italic: 'Italics',
+		comment: 'Comment',
+		strikethrough: 'Strikethrough',
+		addAttach: 'Add attachment',
+		blockquote: 'Blockquote',
+		clearFormat: 'Clear format',
+		cut: 'Cut',
+		copy: 'Copy',
+		paste: 'Paste',
+		copyHtml: 'Copy HTML',
+		date: 'Insert today\'s date',
+		time: 'Insert current time',
+		upperCase: 'Uppercase',
+		lowerCase: 'Lowercase',
+		capitalCase: 'Capital case',
+		list: 'Toggle list',
+		orderedList: 'Toggle ordered list',
+		mergeLines: 'Merge lines into single line',
+		sortLines: 'Sort lines',
+		reverseLines: 'Reverse lines',
+		shuffleLines: 'Shuffle lines',
+		calc: 'Calculate math expression',
+		find: 'Find in current note',
+		replace: 'Find and replace in current note',
+		search: 'Search in all files',
+		wordCount: 'Word count',
+		lineCount: 'Line count',
+		bingTranslation: 'Translation with Bing',
+		googleTranslation: 'Translation with Google',
+		google: 'Search with Google',
+		baidu: 'Search with Baidu',
+		zhihu: 'Search with Zhihu',
+		quora: 'Search with Quora',
+		bing: 'Search with Bing',
+		wikipedia: 'Search with Wikipedia',
+		wolframAlpha: 'Search with Wolfram Alpha',
+	},
+	setting: {
+		delete: 'Drag the button here to delete',
+		buildIn: 'Build in actions',
+	}
 };
 
 export default en;

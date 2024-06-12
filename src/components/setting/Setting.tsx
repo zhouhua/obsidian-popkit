@@ -26,6 +26,7 @@ import DraggableWrap from "./DraggableWrap";
 import { Devider, PopoverContainer } from "../styles";
 import SortableItem from "./SortableItem";
 import DroppableWrap from "./DroppableWrap";
+import L from "src/L";
 
 
 const BuildInContainer = styled.div`
@@ -164,7 +165,7 @@ const Setting: FC<{
 			onDragEnd={handleDragEnd}
 			onDragStart={handleDragStart}
 		>
-			<h3>预设 actions</h3>
+			<h3>{L.setting.buildIn()}</h3>
 			<BuildInContainer>
 				{buildIn.map((action, i) => (
 					<DraggableWrap id={`all_${i}`} key={`all_${i}`}>
@@ -198,7 +199,7 @@ const Setting: FC<{
 					</SortableContext>
 					<DroppableWrap id="add" Component={Add}></DroppableWrap>
 				</PopoverContainer>
-				<DroppableWrap id="delete"><DeleteArea hightlight={highlight}>拖按钮到此处删除</DeleteArea></DroppableWrap>
+				<DroppableWrap id="delete"><DeleteArea hightlight={highlight}>{L.setting.delete()}</DeleteArea></DroppableWrap>
 			</div>
 			<DragOverlay>
 				{activeItem && (

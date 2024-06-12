@@ -22,6 +22,10 @@ After installing and enabling the plugin, you can access the various tools via t
 
 You can customize the tools available in the PopKit toolbar by going to **Settings** > **PopKit** and selecting the tools you want to enable or disable.
 
+## Future Features
+
+- [ ] Allow users to add custom tools.
+
 ---
 
 Thank you for using Obsidian PopKit! We hope it enhances your productivity and note-taking experience.
