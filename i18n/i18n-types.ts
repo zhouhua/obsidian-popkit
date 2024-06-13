@@ -201,6 +201,10 @@ type RootTranslation = {
 		 * B​u​i​l​d​ ​i​n​ ​a​c​t​i​o​n​s
 		 */
 		buildIn: string
+		/**
+		 * D​i​v​i​d​e​r
+		 */
+		divider: string
 	}
 }
 
@@ -392,6 +396,10 @@ export type TranslationFunctions = {
 		 * Build in actions
 		 */
 		buildIn: () => LocalizedString
+		/**
+		 * Divider
+		 */
+		divider: () => LocalizedString
 	}
 }
 

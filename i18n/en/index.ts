@@ -50,6 +50,7 @@ const en: BaseTranslation = {
 	setting: {
 		delete: 'Drag the button here to delete',
 		buildIn: 'Build in actions',
+		divider: 'Divider',
 	}
 };
 

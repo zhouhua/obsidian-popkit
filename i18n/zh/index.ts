@@ -50,6 +50,7 @@ const zh: Translation = {
 	setting: {
 		delete: '拖动按钮到此处删除',
 		buildIn: '内置快捷工具',
+		divider: '分割线',
 	}
 };
 

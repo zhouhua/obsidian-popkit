@@ -176,7 +176,7 @@ const Setting: FC<{
 					<Item app={app} action={{
 						name: 'divider',
 						handlerString: '',
-						desc: '分割线',
+						desc: `${L.setting.divider()}`,
 					} as IActionWithHandlerString} type="setting"></Item>
 				</DraggableWrap>
 			</BuildInContainer>
