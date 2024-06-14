@@ -16,7 +16,6 @@ After installing and enabling the plugin, you can access the various tools via t
 ### How to Use
 
 - Select a piece of text in the Obsidian editor, and the PopKit toolset will instantly appear. Click on a tool to use it.
-- You can also quickly invoke the pop-up toolset with the default shortcut `Cmd + .`.
 
 ## Customization
 

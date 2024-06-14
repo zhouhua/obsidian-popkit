@@ -19,9 +19,9 @@ export default class PopkitPlugin extends Plugin {
 			clearPopover
 		);
 		this.addCommand({
-			id: "popkit-open-popover",
-			name: "Show Popkit",
-			hotkeys: [{ modifiers: ["Mod"], key: "." }],
+			id: "show",
+			name: "Show PopKit",
+			// hotkeys: [{ modifiers: ["Mod"], key: "." }],
 			editorCallback: (editor) => {
 				new PopoverManager(editor, this.app, this.settings);
 			},
