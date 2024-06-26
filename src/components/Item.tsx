@@ -1,5 +1,5 @@
 import { App, Editor, setTooltip } from "obsidian";
-import { MouseEvent, useState, FC, useRef, useEffect, forwardRef } from "react";
+import { MouseEvent, useState, useRef, useEffect, forwardRef } from "react";
 import { Action } from "src/types";
 import uniqueId from "lodash/uniqueId";
 import { icons } from "lucide-react";
@@ -39,96 +39,96 @@ const Text = styled.div`
 `;
 
 interface ItemProps {
-	action: Action;
-	editor?: Editor;
-	replace?: (text: string) => void;
-	getMarkdown?: () => string;
-	selection?: string;
-	finish?: () => void;
-	app: App;
-	type: 'normal' | 'setting';
+  action: Action;
+  editor?: Editor;
+  replace?: (text: string) => void;
+  getMarkdown?: () => string;
+  selection?: string;
+  finish?: () => void;
+  app: App;
+  type: 'normal' | 'setting';
 }
 
 const AsyncFunction = async function () { }.constructor;
 
 const Item = forwardRef<HTMLDivElement, ItemProps>(({
-	action,
-	editor,
-	replace,
-	getMarkdown,
-	selection,
-	finish,
-	app,
-	type,
+  action,
+  editor,
+  replace,
+  getMarkdown,
+  selection,
+  finish,
+  app,
+  type,
 }, ref) => {
-	const [id] = useState<string>(uniqueId("action-item-"));
-	const icon = type === 'setting' && action.defaultIcon ? action.defaultIcon : action.icon as string;
-	const Icon = icons[icon as keyof typeof icons];
-	const itemRef = useRef<HTMLDivElement>(null);
-	async function click(e: MouseEvent<HTMLDivElement>) {
-		if (type === 'setting') {
-			return;
-		}
-		e.preventDefault();
-		e.stopPropagation();
-		try {
-			if (action.handler) {
-				await action.handler({
-					editor: editor!,
-					getMarkdown: getMarkdown!,
-					replace: replace!,
-					app,
-					selection: selection!,
-					action,
-				});
-				finish!();
-			} else if (action.command) {
-				const result = app.commands.executeCommandById(action.command);
-				if (!result) {
-					console.error(`Command ${action.command} not found`);
-				}
-				finish!();
-			} else if (action.handlerString) {
-				// @ts-expect-error
-				const fn = new AsyncFunction("context", action.handlerString);
-				await fn({ editor, getMarkdown, replace, app, selection, action });
-				finish!();
-			}
-		} catch (e) {
-			console.error(e);
-			finish!();
-		}
-	}
-	useEffect(() => {
-		if (itemRef.current) {
-			setTooltip(itemRef.current, action.desc || action.name as string);
-		}
-	}, [itemRef.current]);
+  const [id] = useState<string>(uniqueId("action-item-"));
+  const icon = type === 'setting' && action.defaultIcon ? action.defaultIcon : action.icon as string;
+  const Icon = icons[icon as keyof typeof icons];
+  const itemRef = useRef<HTMLDivElement>(null);
+  async function click(e: MouseEvent<HTMLDivElement>) {
+    if (type === 'setting') {
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      if (action.handler) {
+        await action.handler({
+          editor: editor!,
+          getMarkdown: getMarkdown!,
+          replace: replace!,
+          app,
+          selection: selection!,
+          action,
+        });
+        finish!();
+      } else if (action.command) {
+        const result = app.commands.executeCommandById(action.command);
+        if (!result) {
+          console.error(`Command ${action.command} not found`);
+        }
+        finish!();
+      } else if (action.handlerString) {
+        // @ts-expect-error
+        const fn = new AsyncFunction("context", action.handlerString);
+        await fn({ editor, getMarkdown, replace, app, selection, action });
+        finish!();
+      }
+    } catch (e) {
+      console.error(e);
+      finish!();
+    }
+  }
+  useEffect(() => {
+    if (itemRef.current) {
+      setTooltip(itemRef.current, action.desc || action.name as string);
+    }
+  }, [itemRef.current, action]);
 
-	return (
-		<div ref={ref}>
-			<Container
-				id={id}
-				onClick={click}
-				ref={itemRef}
-			>
-				{icon ? (
-					/^https?:|^data:/.test(icon) ? (
-						<Image
-							style={{ backgroundImage: `url(${action.icon})` }
-							}
-						></Image>
-					) : icon in icons ? (
-						<Icon size={20} color="#fff" />
-					) : (
-						<Text>{icon}</Text>
-					)
-				) : (
-					<Text>{action.name as string}</Text>
-				)}
-			</Container>
-		</div>
-	);
+  return (
+    <div ref={ref}>
+      <Container
+        id={id}
+        onClick={click}
+        ref={itemRef}
+      >
+        {icon ? (
+          /^https?:|^data:/.test(icon) ? (
+            <Image
+              style={{ backgroundImage: `url(${action.icon})` }
+              }
+            ></Image>
+          ) : icon in icons ? (
+            <Icon size={20} color="#fff" />
+          ) : (
+            <Text>{icon}</Text>
+          )
+        ) : (
+          <Text>{action.name as string}</Text>
+        )}
+      </Container>
+    </div>
+  );
 });
 
 export default Item;

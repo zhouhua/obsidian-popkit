@@ -198,13 +198,49 @@ type RootTranslation = {
 		 */
 		'delete': string
 		/**
-		 * B​u​i​l​d​ ​i​n​ ​a​c​t​i​o​n​s
+		 * B​u​i​l​d​i​n​ ​a​c​t​i​o​n​s
 		 */
 		buildIn: string
+		/**
+		 * C​u​s​t​o​m​ ​a​c​t​i​o​n​s
+		 */
+		custom: string
+		/**
+		 * A​d​d​ ​c​u​s​t​o​m​ ​a​c​t​i​o​n
+		 */
+		add: string
 		/**
 		 * D​i​v​i​d​e​r
 		 */
 		divider: string
+		/**
+		 * U​p​l​o​a​d
+		 */
+		upload: string
+		/**
+		 * A​d​d​ ​C​u​s​t​o​m​ ​A​c​t​i​o​n
+		 */
+		customTitle: string
+		/**
+		 * A​ ​c​u​s​t​o​m​ ​a​c​t​i​o​n​ ​h​a​s​ ​b​e​e​n​ ​a​d​d​e​d​ ​s​u​c​c​e​s​s​f​u​l​l​y
+		 */
+		addSuccess: string
+		/**
+		 * S​o​u​r​c​e​ ​P​l​u​g​i​n​:​ 
+		 */
+		plugin: string
+		/**
+		 * C​o​m​m​a​n​d​:​ 
+		 */
+		command: string
+		/**
+		 * I​c​o​n​:​ 
+		 */
+		icon: string
+		/**
+		 * N​o​ ​c​u​s​t​o​m​ ​a​c​t​i​o​n​s​ ​a​v​a​i​l​a​b​l​e​ ​y​e​t​.​ ​Y​o​u​ ​c​a​n​ ​a​d​d​ ​t​h​e​m​ ​u​s​i​n​g​ ​t​h​e​ ​f​o​r​m​ ​b​e​l​o​w​.
+		 */
+		empty: string
 	}
 }
 
@@ -393,13 +429,49 @@ export type TranslationFunctions = {
 		 */
 		'delete': () => LocalizedString
 		/**
-		 * Build in actions
+		 * Buildin actions
 		 */
 		buildIn: () => LocalizedString
+		/**
+		 * Custom actions
+		 */
+		custom: () => LocalizedString
+		/**
+		 * Add custom action
+		 */
+		add: () => LocalizedString
 		/**
 		 * Divider
 		 */
 		divider: () => LocalizedString
+		/**
+		 * Upload
+		 */
+		upload: () => LocalizedString
+		/**
+		 * Add Custom Action
+		 */
+		customTitle: () => LocalizedString
+		/**
+		 * A custom action has been added successfully
+		 */
+		addSuccess: () => LocalizedString
+		/**
+		 * Source Plugin: 
+		 */
+		plugin: () => LocalizedString
+		/**
+		 * Command: 
+		 */
+		command: () => LocalizedString
+		/**
+		 * Icon: 
+		 */
+		icon: () => LocalizedString
+		/**
+		 * No custom actions available yet. You can add them using the form below.
+		 */
+		empty: () => LocalizedString
 	}
 }
 

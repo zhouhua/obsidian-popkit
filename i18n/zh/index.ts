@@ -50,7 +50,16 @@ const zh: Translation = {
 	setting: {
 		delete: '拖动按钮到此处删除',
 		buildIn: '内置快捷工具',
+		custom: '自定义快捷工具',
+		add: '添加自定义快捷工具',
 		divider: '分割线',
+    upload: '上传',
+    customTitle: '自定义快捷工具',
+    addSuccess: '自定义快捷工具添加成功',
+    plugin: '来源插件：',
+    command: '命令：',
+    icon: '图标：',
+    empty: '暂无自定义快捷工具，可以通过下方表单添加。',
 	}
 };
 

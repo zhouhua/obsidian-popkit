@@ -3,6 +3,7 @@ import PopoverManager, { clearPopover } from "./render";
 import { ISetting } from "./types";
 import defaultSetting from "./defaultSetting";
 import renderSetting from "./components/setting";
+import { Root } from "react-dom/client";
 
 export default class PopkitPlugin extends Plugin {
 	settings: ISetting;
@@ -23,6 +24,7 @@ export default class PopkitPlugin extends Plugin {
 			name: "Show PopKit",
 			// hotkeys: [{ modifiers: ["Mod"], key: "." }],
 			editorCallback: (editor) => {
+				clearPopover();
 				new PopoverManager(editor, this.app, this.settings);
 			},
 		});
@@ -38,9 +40,12 @@ export default class PopkitPlugin extends Plugin {
 			return;
 		}
 		const editor = view.editor;
-		if(editor.somethingSelected()) {
-			new PopoverManager(editor, this.app, this.settings);
-		}
+    clearPopover();
+    setTimeout(() => {
+      if(editor.somethingSelected()) {
+        new PopoverManager(editor, this.app, this.settings);
+      }
+    }, 20);
 	}
 
 	onunload() {}
@@ -57,6 +62,7 @@ export default class PopkitPlugin extends Plugin {
 class PopkitSetting extends PluginSettingTab {
   plugin: PopkitPlugin;
   render: (settings: ISetting) => void;
+  root: Root;
 
   constructor(app: App, plugin: PopkitPlugin) {
     super(app, plugin);
@@ -68,8 +74,11 @@ class PopkitSetting extends PluginSettingTab {
   }
   display(): void {
     const { containerEl } = this;
+    if(this.root) {
+      this.root.unmount();
+    }
     containerEl.empty();
-    renderSetting(
+    this.root = renderSetting(
       containerEl,
       this.plugin.settings,
       this.app,

@@ -57,4 +57,5 @@ export type PopoverItem = {type: ItemType.Action, action: Action, id: string} | 
 
 export interface ISetting {
 	actionList: PopoverItem[];
+	customActionList: Action[];
 }

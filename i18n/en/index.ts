@@ -49,8 +49,17 @@ const en: BaseTranslation = {
 	},
 	setting: {
 		delete: 'Drag the button here to delete',
-		buildIn: 'Build in actions',
+		buildIn: 'Buildin actions',
+		custom: 'Custom actions',
+		add: 'Add custom action',
 		divider: 'Divider',
+    upload: 'Upload',
+    customTitle: 'Add Custom Action',
+    addSuccess: 'A custom action has been added successfully',
+    plugin: 'Source Plugin: ',
+    command: 'Command: ',
+    icon: 'Icon: ',
+    empty: 'No custom actions available yet. You can add them using the form below.',
 	}
 };
 

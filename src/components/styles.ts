@@ -16,7 +16,13 @@ export const PopoverContainer = styled.div<{ type: 'normal' | 'setting' }>`
 
 export const Devider = styled.div`
 	width: 1px;
-	margin: 6px 2px;
+	margin: 6px 4px;
 	background-color: #fff;
 	height: 16px;
+`;
+
+export const Alert = styled.span`
+	font-size: 12px;
+	padding: 0 12px;
+	line-height: 28px;
 `;

@@ -30,7 +30,6 @@ export const openBookmark = {
 	icon: 'BookMarked',
 	name: 'open bookmark',
 	desc: L.actions.openBookmark(),
-	test: '^$',
 	command: 'bookmarks:open'
 }
 
@@ -38,7 +37,6 @@ export const lineUp = {
 	icon: 'CornerRightUp',
 	name: 'line up',
 	desc: L.actions.lineUp(),
-	test: '^$',
 	command: 'editor:swap-line-up'
 }
 
@@ -46,7 +44,6 @@ export const lineDown = {
 	icon: 'CornerRightDown',
 	name: 'line down',
 	desc: L.actions.lineDown(),
-	test: '^$',
 	command: 'editor:swap-line-down'
 }
 
