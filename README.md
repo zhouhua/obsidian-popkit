@@ -43,4 +43,12 @@ You can customize the tools available in the PopKit toolbar by going to **Settin
 
 ---
 
-Thank you for using Obsidian PopKit! We hope it enhances your productivity and note-taking experience.
+Thank you for using Obsidian PopKit! I hope it enhances your productivity and note-taking experience.
+
+## My Other Obsidian Plugins
+
+- [Export Image](https://github.com/zhouhua/obsidian-export-image)
+- [Markdown Media Card](https://github.com/zhouhua/obsidian-markdown-media-card)
+- [vConsole](https://github.com/zhouhua/obsidian-vconsole)
+- [POWER MODE](https://github.com/zhouhua/obsidian-power-mode)
+- [Another Sticky Headings](https://github.com/zhouhua/obsidian-sticky-headings)
