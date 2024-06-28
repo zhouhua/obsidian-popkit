@@ -1,5 +1,7 @@
 # Obsidian PopKit
 
+![GitHub Release](https://img.shields.io/github/v/release/zhouhua/obsidian-popkit?include_prereleases&style=flat) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/zhouhua/obsidian-popkit/total?style=flat)
+
 Obsidian PopKit is a powerful plugin for [Obsidian](https://obsidian.md/), providing a suite of built-in tools to enhance your note-taking and productivity workflows. Inspired by the Mac software [PopClip](https://pilotmoon.com/popclip/), PopKit offers quick access to a variety of useful utilities.
 
 ## Installation
