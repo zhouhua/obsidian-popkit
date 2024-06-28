@@ -42,7 +42,6 @@
 		"@emotion/styled": "^11.11.5",
 		"@mui/base": "5.0.0-beta.40",
 		"@mui/material": "^5.15.20",
-		"dayjs": "^1.11.11",
 		"lodash": "^4.17.21",
 		"lucide-react": "^0.396.0",
 		"mathjs": "^13.0.0",

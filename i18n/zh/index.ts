@@ -2,8 +2,8 @@ import type { Translation } from "../i18n-types";
 
 const zh: Translation = {
 	actions: {
-		help: '打开 Obsidian 帮助',
-		setting: '打开 Obsidian 设置',
+		help: '打开帮助',
+		setting: '打开设置',
 		addBookmark: '添加书签',
 		openBookmark: '打开书签',
 		lineUp: '上移一行',

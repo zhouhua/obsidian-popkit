@@ -2,8 +2,8 @@ import type { BaseTranslation } from "../i18n-types";
 
 const en: BaseTranslation = {
 	actions: {
-		help: 'Open obsidian help',
-		setting: 'Open obsidian setting',
+		help: 'Open help',
+		setting: 'Open setting',
 		addBookmark: 'Add bookmark',
 		openBookmark: 'Open bookmark',
 		lineUp: 'Move line up',
@@ -54,9 +54,9 @@ const en: BaseTranslation = {
 		add: 'Add custom action',
 		divider: 'Divider',
     upload: 'Upload',
-    customTitle: 'Add Custom Action',
+    customTitle: 'Add custom action',
     addSuccess: 'A custom action has been added successfully',
-    plugin: 'Source Plugin: ',
+    plugin: 'Source plugin: ',
     command: 'Command: ',
     icon: 'Icon: ',
     empty: 'No custom actions available yet. You can add them using the form below.',

@@ -1,10 +1,10 @@
 import type { HandlerParams } from "src/types";
-import dayjs from 'dayjs';
+import { moment } from 'obsidian';
 import L from "src/L";
 
 export const date = {
 	name: () => {
-		const date = dayjs();
+		const date = moment();
 		return date.format('YYYY-MM-DD');
 	},
 	desc: L.actions.date(),
@@ -15,7 +15,7 @@ export const date = {
 
 export const time = {
 	name: () => {
-		const date = dayjs();
+		const date = moment();
 		return date.format('HH:mm:ss');
 	},
 	desc: L.actions.time(),
