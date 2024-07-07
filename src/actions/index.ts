@@ -9,8 +9,9 @@ import * as stats from './stats';
 import * as appActions from './app';
 import * as list from './list';
 import * as date from './date';
-import { Action } from 'src/types';
+import type { Action } from 'src/types';
 
-export default [clipboard, basicFormat, search, web, translation, math, letterCase, stats, appActions, list, date].reduce((acc, cur) => {
-	return acc.concat(Object.values(cur))
-}, [] as Action[])
+export default [clipboard, basicFormat, search, web, translation, math, letterCase, stats, appActions, list, date]
+  .reduce<Action[]>((acc, cur) => {
+    return acc.concat(Object.values(cur));
+  }, []);

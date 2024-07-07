@@ -1,19 +1,19 @@
-import {useSortable} from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-const SortableItem = ({children, id}: {children: React.ReactNode; id: string}) => {
-	const {attributes, listeners, setNodeRef, transform, transition} = useSortable({id});
+const SortableItem = ({ children, id }: { children: React.ReactNode; id: string; }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
-	return (
-		<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-			{children}
-		</div>
-	);
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
 };
 
 export default SortableItem;

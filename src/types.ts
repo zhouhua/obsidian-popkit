@@ -1,61 +1,71 @@
-import type { App, Editor } from "obsidian";
+import type { App, Editor } from 'obsidian';
 
-export type HandlerParams = {
-	app:App;
-	editor: Editor;
-	replace: (text: string) => void;
-	getMarkdown: () => string;
-	selection: string;
-	action: Action;
+export interface HandlerParams {
+  app: App;
+  editor: Editor;
+  replace: (text: string) => void;
+  getMarkdown: () => string;
+  selection: string;
+  action: Action;
 }
 
 interface IActionBase {
-	name: string | ((param: Partial<HandlerParams>) => string);
-	desc: string;
-	icon?: string | ((param: Partial<HandlerParams>) => string);
-	test?: string;
-	dependencies?: string[];
-	exampleText?: string;
-	defaultIcon?: string;
-	origin?: Action;
+  name: string | ((param: Partial<HandlerParams>) => string);
+  desc: string;
+  icon?: string | ((param: Partial<HandlerParams>) => string);
+  test?: string;
+  dependencies?: string[];
+  exampleText?: string;
+  defaultIcon?: string;
+  origin?: Action;
+  id?: string;
+  version?: number;
 }
 
 export interface IActionWithHandler extends IActionBase {
-	handler: (params: HandlerParams) => void;
-	handlerString: never;
-	command: never;
-	hotkeys: never;
+  handler: (params: HandlerParams) => Promise<void> | void;
+}
+
+export function hasHandler(action: Action): action is IActionWithHandler {
+  return 'handler' in action;
 }
 
 export interface IActionWithHandlerString extends IActionBase {
-	handlerString: string;
-	handler: never;
-	command: never;
-	hotkeys: never;
+  handlerString: string;
+}
+
+export function hasHandlerString(action: Action): action is IActionWithHandlerString {
+  return 'handlerString' in action;
 }
 
 export interface IActionWithCommand extends IActionBase {
-	command: string;
-	handlerString: never;
-	handler: never;
-	hotkeys: never;
+  command: string;
+}
+
+export function hasCommand(action: Action): action is IActionWithCommand {
+  return 'command' in action;
 }
 
 export interface IActionWithHotkeys extends IActionBase {
-	hotkeys: string[];
-	handlerString: never;
-	handler: never;
-	command: never;
+  hotkeys: string[];
+}
+
+export function hasHotkeys(action: Action): action is IActionWithHotkeys {
+  return 'hotkeys' in action;
 }
 
 export type Action = IActionWithHandler | IActionWithHandlerString | IActionWithCommand | IActionWithHotkeys;
+
 export enum ItemType {
-	Action = 'action',
-	Divider = 'divider'
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  Action = 'action',
+  Divider = 'divider',
 }
-export type PopoverItem = {type: ItemType.Action, action: Action, id: string} | {type: ItemType.Divider, id: string}
+export type PopoverItem =
+  | { type: ItemType.Action; action: Action; id: string; }
+  | { type: ItemType.Divider; id: string; };
 
 export interface ISetting {
-	actionList: PopoverItem[];
-	customActionList: Action[];
+  actionList: PopoverItem[];
+  customActionList: Action[];
 }

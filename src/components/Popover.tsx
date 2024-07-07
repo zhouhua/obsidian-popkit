@@ -1,11 +1,12 @@
-import { App, Editor } from "obsidian";
-import { FC, useEffect, useRef, useState } from "react";
-import { ItemType, PopoverItem } from "src/types";
+import type { App, Editor } from 'obsidian';
+import type { FC } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { PopoverItem } from 'src/types';
+import { ItemType } from 'src/types';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
-import Item from "./Item";
-import { changeAction } from "src/utils";
-import { Devider, PopoverContainer } from "./styles";
-
+import Item from './Item';
+import { changeAction } from 'src/utils';
+import { Devider, PopoverContainer } from './styles';
 
 interface PopoverProps {
   editor?: Editor;
@@ -22,7 +23,7 @@ const Popover: FC<PopoverProps> = ({
   out,
   actions,
   app,
-  type = 'normal'
+  type = 'normal',
 }) => {
   const selection = editor?.getSelection();
   const listRef = useRef<HTMLUListElement>(null);
@@ -31,8 +32,7 @@ const Popover: FC<PopoverProps> = ({
 
   function calcPosition() {
     const pos = editor!.getCursor();
-    /* @ts-ignore */
-    const coord: { left: number; top: number } = editor.coordsAtPos(pos);
+    const coord: { left: number; top: number; } = editor!.coordsAtPos(pos, false);
     const rect = out!.getBoundingClientRect();
     const left = coord.left - rect.left;
     const top = coord.top - rect.top + out!.scrollTop;
@@ -51,24 +51,24 @@ const Popover: FC<PopoverProps> = ({
   }
 
   const filterList = actions
-    .map((item) => {
+    .map(item => {
       if (item.type === ItemType.Divider) {
         return item;
       }
       return { type: item.type, action: changeAction(item.action, type, type === 'setting' ? item.action.exampleText : selection) };
     })
-    .filter((item) => {
+    .filter(item => {
       if (type === 'setting' || item.type === ItemType.Divider) {
         return true;
       }
-      const action = item.action;
+      const { action } = item;
       let valid = Boolean(action.name || action.icon);
       if (valid && action.test) {
-        const reg = new RegExp(action.test?.replace(/\\/g, "\\\\") ?? "");
+        const reg = new RegExp(action.test.replace(/\\/g, '\\\\'));
         valid = reg.test(selection ?? '') && Boolean(action.name || action.icon);
       }
       if (valid && action.dependencies) {
-        valid = action.dependencies.every((dep) => {
+        valid = action.dependencies.every(dep => {
           return app.plugins.enabledPlugins.has(dep);
         });
       }
@@ -89,10 +89,10 @@ const Popover: FC<PopoverProps> = ({
       calcPosition();
       const observer = new ResizeObserver(calcPosition);
       observer.observe(out!);
-      out!.addEventListener("scroll", calcPosition);
+      out!.addEventListener('scroll', calcPosition);
       return () => {
         observer.unobserve(out!);
-        out!.removeEventListener("scroll", calcPosition);
+        out!.removeEventListener('scroll', calcPosition);
       };
     }
   }, [type]);
@@ -101,7 +101,7 @@ const Popover: FC<PopoverProps> = ({
     return null;
   }
   return (
-    <ClickAwayListener onClickAway={() => type === 'normal' && destory!()}>
+    <ClickAwayListener onClickAway={() => { type === 'normal' && destory!(); }}>
       <PopoverContainer
         type={type}
         style={{ left: `${positionLeft}px`, top: `${positionTop}px` }}
@@ -109,21 +109,25 @@ const Popover: FC<PopoverProps> = ({
         <ul ref={listRef}>
           {filterList.map((popoverItem, i) => (
             <li key={`${i}`}>
-              {popoverItem.type === ItemType.Action ? <Item
-                action={popoverItem.action}
-                editor={editor}
-                app={app}
-                getMarkdown={getMarkdown}
-                selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
-                finish={destory}
-                replace={replace}
-                type={type}
-              /> : <Devider />}
+              {popoverItem.type === ItemType.Action
+                ? (
+                    <Item
+                      action={popoverItem.action}
+                      editor={editor}
+                      app={app}
+                      getMarkdown={getMarkdown}
+                      selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
+                      finish={destory}
+                      replace={replace}
+                      type={type}
+                    />
+                  )
+                : <Devider />}
             </li>
           ))}
         </ul>
-      </PopoverContainer >
-    </ClickAwayListener >
+      </PopoverContainer>
+    </ClickAwayListener>
   );
 };
 

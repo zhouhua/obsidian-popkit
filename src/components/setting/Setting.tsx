@@ -1,10 +1,16 @@
-import { App } from "obsidian";
-import { FC, useCallback, useState } from "react";
-import { ISetting, PopoverItem, ItemType, IActionWithHandlerString, Action } from "src/types";
-import buildIn from "../../actions";
-import Item from "../Item";
-import { changeAction } from "src/utils";
-import styled from "@emotion/styled";
+import type { App } from 'obsidian';
+import type { FC } from 'react';
+import { useCallback, useState } from 'react';
+import type { ISetting, PopoverItem, Action } from 'src/types';
+import { ItemType } from 'src/types';
+import buildIn from '../../actions';
+import Item from '../Item';
+import { changeAction } from 'src/utils';
+import styled from '@emotion/styled';
+import type {
+  DragStartEvent,
+  DragEndEvent,
+} from '@dnd-kit/core';
 import {
   DndContext,
   rectIntersection,
@@ -13,8 +19,6 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
-  DragStartEvent,
-  DragEndEvent,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -22,12 +26,12 @@ import {
   sortableKeyboardCoordinates,
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import DraggableWrap from "./DraggableWrap";
-import { Devider, PopoverContainer } from "../styles";
-import SortableItem from "./SortableItem";
-import DroppableWrap from "./DroppableWrap";
-import L from "src/L";
-import NewCustomAction from "./NewCustomAction";
+import DraggableWrap from './DraggableWrap';
+import { Devider, PopoverContainer } from '../styles';
+import SortableItem from './SortableItem';
+import DroppableWrap from './DroppableWrap';
+import L from 'src/L';
+import NewCustomAction from './NewCustomAction';
 
 const Section = styled.section`
   position: relative;
@@ -45,30 +49,30 @@ const Section = styled.section`
 `;
 
 const ActionsContainer = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 `;
 
 const DrapArea = styled.div`
   margin: 20px 0;
 `;
 
-const DeleteArea = styled.div<{ hightlight: boolean }>`
-	height: 40px;
-	border: 1px dashed ${props => props.hightlight ? 'red' : '#ccc'};
-	border-radius: 4px;
-	margin-top: 20px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	color: ${props => props.hightlight ? 'red' : '#ccc'};
-	transition: all 200ms ease-in-out;
+const DeleteArea = styled.div<{ hightlight: boolean; }>`
+  height: 40px;
+  border: 1px dashed ${props => (props.hightlight ? 'red' : '#ccc')};
+  border-radius: 4px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: ${props => (props.hightlight ? 'red' : '#ccc')};
+  transition: all 200ms ease-in-out;
 `;
 
 const Add = styled.div`
-	flex-grow: 1;
-	min-width: 20px;
+  flex-grow: 1;
+  min-width: 20px;
   height: 28px;
 `;
 
@@ -86,22 +90,23 @@ const Setting: FC<{
       updateSetting(data);
       setFormData(data);
     },
-    [setFormData, updateSetting]
+    [setFormData, updateSetting],
   );
 
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
-    const [type, id] = (active.id as string).split('_');
+    const [type, id] = `${active.id}`.split('_');
     if (type === 'custom') {
       setHighlight(true);
-    } else if (type === 'list') {
+    }
+    else if (type === 'list') {
       const activeAction = formData.actionList[Number(id)];
       setActiveItem(activeAction);
       setHighlight(true);
@@ -114,8 +119,8 @@ const Setting: FC<{
     if (!over) {
       return;
     }
-    const [activType, activeId] = (active.id as string).split('_');
-    const [overType, overId] = (over?.id as string).split('_');
+    const [activType, activeId] = `${active.id}`.split('_');
+    const [overType, overId] = `${over.id}`.split('_');
     if (overType === 'all') {
       return;
     }
@@ -128,51 +133,62 @@ const Setting: FC<{
         type: ItemType.Action,
         id: '',
       });
-    } else if (activType === 'custom' && overType === 'list') {
+    }
+    else if (activType === 'custom' && overType === 'list') {
       // 设置新的自定义按钮
       newList.splice(Number(overId), 0, {
         action: newCustomList[Number(activeId)],
         type: ItemType.Action,
         id: '',
       });
-    } else if (activType === 'list' && overType === 'list') {
+    }
+    else if (activType === 'list' && overType === 'list') {
       // 调整顺序
       newList = arrayMove(newList, Number(activeId), Number(overId));
-    } else if (activType === 'list' && overType === 'add') {
+    }
+    else if (activType === 'list' && overType === 'add') {
       // 调整顺序
       newList = arrayMove(newList, Number(activeId), newList.length - 1);
-    } else if (activType === 'custom' && overType === 'custom') {
+    }
+    else if (activType === 'custom' && overType === 'custom') {
       // 调整自定义按钮顺序
       newCustomList = arrayMove(newCustomList, Number(activeId), Number(overId));
-    } else if (activType === 'list' && overType === 'delete') {
+    }
+    else if (activType === 'list' && overType === 'delete') {
       // 删除按钮
       newList.splice(Number(activeId), 1);
-    } else if (activType === 'custom' && overType === 'delete') {
+    }
+    else if (activType === 'custom' && overType === 'delete') {
       // 删除自定义按钮
       newCustomList.splice(Number(activeId), 1);
-    } else if (activType === 'all' && overType === 'add') {
+    }
+    else if (activType === 'all' && overType === 'add') {
       // 添加按钮
       newList.push(
-        { type: ItemType.Action, action: buildIn[Number(activeId)], id: '' }
+        { type: ItemType.Action, action: buildIn[Number(activeId)], id: '' },
       );
-    } else if (activType === 'custom' && overType === 'add') {
+    }
+    else if (activType === 'custom' && overType === 'add') {
       // 添加自定义按钮
       newList.push(
-        { type: ItemType.Action, action: newCustomList[Number(activeId)], id: '' }
+        { type: ItemType.Action, action: newCustomList[Number(activeId)], id: '' },
       );
-    } else if (activType === 'divider' && overType === 'list') {
+    }
+    else if (activType === 'divider' && overType === 'list') {
       // 添加分割线
       newList.splice(Number(overId), 0, {
         type: ItemType.Divider,
         id: '',
       });
-    } else if (activType === 'divider' && overType === 'add') {
+    }
+    else if (activType === 'divider' && overType === 'add') {
       // 添加分割线
       newList.push({
         type: ItemType.Divider,
         id: '',
       });
-    } else {
+    }
+    else {
       return;
     }
     newList = newList.filter((item, index) => {
@@ -211,29 +227,37 @@ const Setting: FC<{
         <h3>{L.setting.buildIn()}</h3>
         <ActionsContainer>
           {buildIn.map((action, i) => (
-            <DraggableWrap id={`all_${i}`} key={`all_${i}`}>
-              <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting"></Item>
+            <DraggableWrap key={`all_${i}`} id={`all_${i}`}>
+              <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
             </DraggableWrap>
           ))}
           <DraggableWrap id="divider">
-            <Item app={app} action={{
-              name: 'divider',
-              handlerString: '',
-              desc: `${L.setting.divider()}`,
-            } as IActionWithHandlerString} type="setting"></Item>
+            <Item
+              action={{
+                name: 'divider',
+                handlerString: '',
+                desc: L.setting.divider(),
+              }}
+              app={app}
+              type="setting"
+            />
           </DraggableWrap>
         </ActionsContainer>
       </Section>
       <Section>
         <h3>{L.setting.custom()}</h3>
         <ActionsContainer>
-          {formData.customActionList.length ? formData.customActionList.map((action, i) => (
-            <DraggableWrap id={`custom_${i}`} key={`custom_${i}`}>
-              <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting"></Item>
-            </DraggableWrap>
-          )) : <p>
-            {L.setting.empty()}
-          </p>}
+          {formData.customActionList.length
+            ? formData.customActionList.map((action, i) => (
+              <DraggableWrap key={`custom_${i}`} id={`custom_${i}`}>
+                <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
+              </DraggableWrap>
+            ))
+            : (
+                <p>
+                  {L.setting.empty()}
+                </p>
+              )}
         </ActionsContainer>
       </Section>
       <DrapArea>
@@ -243,33 +267,41 @@ const Setting: FC<{
             strategy={horizontalListSortingStrategy}
           >
             {formData.actionList.map((popoverItem, i) => (
-              <SortableItem id={`list_${i}`} key={`list_${i}`}>{
-                popoverItem.type === ItemType.Action ? <Item
-                  action={changeAction(popoverItem.action, 'setting', popoverItem.action.exampleText)}
-                  selection={popoverItem.action.exampleText || ''}
-                  app={app}
-                  type="setting"
-                /> : <Devider />
-              }</SortableItem>
+              <SortableItem key={`list_${i}`} id={`list_${i}`}>
+                {
+                  popoverItem.type === ItemType.Action
+                    ? (
+                        <Item
+                          action={changeAction(popoverItem.action, 'setting', popoverItem.action.exampleText)}
+                          selection={popoverItem.action.exampleText || ''}
+                          app={app}
+                          type="setting"
+                        />
+                      )
+                    : <Devider />
+                }
+              </SortableItem>
             ))}
           </SortableContext>
-          <DroppableWrap id="add" Component={Add}></DroppableWrap>
+          <DroppableWrap id="add" Component={Add} />
         </PopoverContainer>
         <DroppableWrap id="delete"><DeleteArea hightlight={highlight}>{L.setting.delete()}</DeleteArea></DroppableWrap>
       </DrapArea>
 
-      <NewCustomAction onChange={addCustomAction} app={app} />
+      <NewCustomAction app={app} onChange={addCustomAction} />
       <DragOverlay>
         {activeItem && (
-          activeItem.type === ItemType.Action ? (
-            <Item
-              app={app}
-              action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
-              type="setting">
-            </Item>
-          ) : <Devider />)}
+          activeItem.type === ItemType.Action
+            ? (
+                <Item
+                  app={app}
+                  action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
+                  type="setting"
+                />
+              )
+            : <Devider />)}
       </DragOverlay>
-    </DndContext >
+    </DndContext>
   );
 };
 

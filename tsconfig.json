@@ -1,18 +1,19 @@
 {
-	"compilerOptions": {
-		"baseUrl": ".",
-		"jsx": "react-jsx",
-		"module": "ESNext",
-		"target": "ESNext",
-		"allowJs": true,
-		"noImplicitAny": true,
-		"moduleResolution": "node",
-		"importHelpers": true,
-		"isolatedModules": true,
-		"strictNullChecks": true,
-		"allowSyntheticDefaultImports": true,
-		"lib": ["DOM", "ES7"],
-		"outDir": "dist",
-	},
-	"include": ["**/*.ts", "**/*.tsx", "src/**/*.d.ts"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ESNext",
+    "allowJs": true,
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "isolatedModules": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "allowSyntheticDefaultImports": true,
+    "lib": ["DOM", "ES7"],
+    "outDir": "dist",
+  },
+  "include": ["**/*.ts", "**/*.tsx", "src/**/*.d.ts", "*.mjs"]
 }
