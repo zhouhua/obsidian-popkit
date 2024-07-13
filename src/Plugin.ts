@@ -59,8 +59,8 @@ export default class PopkitPlugin extends Plugin {
 
   async loadSettings() {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const savedData: ISetting = (await this.loadData()) as ISetting;
-    if (savedData.actionList.length) {
+    const savedData: Partial<ISetting> = (await this.loadData()) as Partial<ISetting>;
+    if (savedData?.actionList?.length) {
       savedData.actionList = updateSettings(actions, savedData.actionList);
       this.saveSettings();
     }
