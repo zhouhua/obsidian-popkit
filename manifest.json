@@ -2,7 +2,7 @@
 	"id": "popkit",
 	"name": "PopKit",
 	"version": "1.0.5",
-	"minAppVersion": "1.15.3",
+	"minAppVersion": "1.5.3",
 	"description": "Select text to instantly access quick tools",
 	"author": "Zhou Hua",
 	"authorUrl": "https://zhouhua.site",
