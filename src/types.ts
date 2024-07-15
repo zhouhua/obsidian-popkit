@@ -66,6 +66,7 @@ export type PopoverItem =
   | { type: ItemType.Divider; id: string; };
 
 export interface ISetting {
+  disableNativeToolbar: boolean;
   actionList: PopoverItem[];
   customActionList: Action[];
 }

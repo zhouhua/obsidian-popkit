@@ -60,6 +60,7 @@ const en: BaseTranslation = {
     command: 'Command: ',
     icon: 'Icon: ',
     empty: 'No custom actions available yet. You can add them using the form below.',
+    disableNativeToolbar: 'Disable the system toolbar when selecting text',
   },
 };
 

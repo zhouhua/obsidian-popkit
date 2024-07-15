@@ -1,5 +1,5 @@
 import type { App } from 'obsidian';
-import { MarkdownView, Plugin, PluginSettingTab } from 'obsidian';
+import { MarkdownView, Platform, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import PopoverManager, { clearPopover } from './render';
 import type { ISetting } from './types';
 import defaultSetting from './defaultSetting';
@@ -7,6 +7,7 @@ import renderSetting from './components/setting';
 import type { Root } from 'react-dom/client';
 import { updateSettings } from './utils';
 import actions from './actions';
+import L from './L';
 
 export default class PopkitPlugin extends Plugin {
   settings: ISetting;
@@ -17,6 +18,13 @@ export default class PopkitPlugin extends Plugin {
       'pointerup',
       e => {
         this.onpointerup(e);
+      },
+    );
+    this.registerDomEvent(
+      document.body,
+      'contextmenu',
+      e => {
+        this.settings.disableNativeToolbar && Platform.isMobile && e.preventDefault();
       },
     );
     this.registerDomEvent(
@@ -59,8 +67,8 @@ export default class PopkitPlugin extends Plugin {
 
   async loadSettings() {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const savedData: Partial<ISetting> = (await this.loadData()) as Partial<ISetting>;
-    if (savedData?.actionList?.length) {
+    const savedData: Partial<ISetting> = (await this.loadData() || {}) as Partial<ISetting>;
+    if (savedData.actionList?.length) {
       savedData.actionList = updateSettings(actions, savedData.actionList);
       this.saveSettings();
     }
@@ -93,8 +101,21 @@ class PopkitSetting extends PluginSettingTab {
       this.root.unmount();
     }
     containerEl.empty();
+    new Setting(containerEl)
+      .setName(L.setting.disableNativeToolbar())
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.plugin.settings.disableNativeToolbar)
+          .onChange(value => {
+            this.update({
+              ...this.plugin.settings,
+              disableNativeToolbar: value,
+            });
+          });
+      });
+    const rootEl = containerEl.createDiv();
     this.root = renderSetting(
-      containerEl,
+      rootEl,
       this.plugin.settings,
       this.app,
       data => { this.update(data); },

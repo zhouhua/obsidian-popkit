@@ -4,6 +4,7 @@ import * as basicFormat from './actions/basicFormat';
 import * as search from './actions/search';
 
 export default {
+  disableNativeToolbar: true,
   customActionList: [],
   actionList: [
     ...Object.values(basicFormat).map(action => ({ type: ItemType.Action, action })),
