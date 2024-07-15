@@ -101,18 +101,20 @@ class PopkitSetting extends PluginSettingTab {
       this.root.unmount();
     }
     containerEl.empty();
-    new Setting(containerEl)
-      .setName(L.setting.disableNativeToolbar())
-      .addToggle(toggle => {
-        toggle
-          .setValue(this.plugin.settings.disableNativeToolbar)
-          .onChange(value => {
-            this.update({
-              ...this.plugin.settings,
-              disableNativeToolbar: value,
+    if (Platform.isMobile) {
+      new Setting(containerEl)
+        .setName(L.setting.disableNativeToolbar())
+        .addToggle(toggle => {
+          toggle
+            .setValue(this.plugin.settings.disableNativeToolbar)
+            .onChange(value => {
+              this.update({
+                ...this.plugin.settings,
+                disableNativeToolbar: value,
+              });
             });
-          });
-      });
+        });
+    }
     const rootEl = containerEl.createDiv();
     this.root = renderSetting(
       rootEl,
