@@ -1,5 +1,5 @@
-import type { Action, PopoverItem } from './types';
-import { ItemType } from './types';
+import type { Action, HandlerParams, IActionWithHandler, PopoverItem } from './types';
+import { hasHandler, ItemType } from './types';
 
 export function changeAction(action: Action, type: 'normal' | 'setting', selection?: string) {
   let newAction = { ...action };
@@ -46,7 +46,31 @@ export async function fileToBase64(file: Blob): Promise<string> {
   });
 }
 
-export function updateSettings(allActions: Action[], enabledActions: PopoverItem[]) {
+export function parseFunction(action: IActionWithHandler) {
+  if (typeof action.handler === 'string') {
+    return {
+      ...action,
+      handler: function (params: HandlerParams) {
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-call
+        return Promise.resolve(new Function(`return (${action.handler as string})`)()(params));
+      },
+    };
+  }
+  return action;
+}
+
+export function stringifyFunction(action: IActionWithHandler) {
+  if (typeof action.handler === 'function') {
+    return {
+      ...action,
+      handler: action.handler.toString(),
+    };
+  }
+  return action;
+}
+
+export function updateSettings(allActions: Action[], enabledActions: PopoverItem[], storedKey?: number) {
+  const refreshKey = 1;
   const actionMap: Record<string, Action> = {};
   allActions.forEach(action => {
     if (action.id) {
@@ -58,10 +82,29 @@ export function updateSettings(allActions: Action[], enabledActions: PopoverItem
       item.type === ItemType.Action
       && item.action.id
       && item.action.id in actionMap
-      && item.action.version !== actionMap[item.action.id].version
+      && (item.action.version !== actionMap[item.action.id].version
+      || refreshKey !== storedKey)
     ) {
       item.action = actionMap[item.action.id];
     }
   });
-  return [...enabledActions];
+  return enabledActions.map(item => {
+    if (item.type === ItemType.Divider) {
+      return {
+        ...item,
+      };
+    }
+    const { action } = item;
+    if (hasHandler(action)) {
+      return {
+        ...item,
+        action: stringifyFunction(action),
+      };
+    }
+    else {
+      return {
+        ...item,
+      };
+    }
+  });
 }

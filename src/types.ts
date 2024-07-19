@@ -23,7 +23,7 @@ interface IActionBase {
 }
 
 export interface IActionWithHandler extends IActionBase {
-  handler: (params: HandlerParams) => Promise<void> | void;
+  handler: string | ((params: HandlerParams) => Promise<void> | void);
 }
 
 export function hasHandler(action: Action): action is IActionWithHandler {
@@ -66,6 +66,7 @@ export type PopoverItem =
   | { type: ItemType.Divider; id: string; };
 
 export interface ISetting {
+  refreshKey: number;
   disableNativeToolbar: boolean;
   actionList: PopoverItem[];
   customActionList: Action[];

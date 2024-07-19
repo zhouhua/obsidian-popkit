@@ -6,6 +6,8 @@ export const PopoverContainer = styled.div<{ type: 'normal' | 'setting'; }>`
   background-color: #000;
   overflow: hidden;
   max-width: 100%;
+  display: ${porps => (porps.type === 'normal' ? 'block' : 'flex')};
+  flex-wrap: wrap;
   ul {
     display: flex;
     max-width: 100%;

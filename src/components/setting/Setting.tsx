@@ -112,6 +112,12 @@ const Setting: FC<{
       setHighlight(true);
     }
   }
+
+  function handleDragCancel() {
+    setActiveItem(null);
+    setHighlight(false);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setActiveItem(null);
     setHighlight(false);
@@ -222,6 +228,7 @@ const Setting: FC<{
       collisionDetection={rectIntersection}
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
     >
       <Section>
         <h3>{L.setting.buildIn()}</h3>

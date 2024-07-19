@@ -7,6 +7,7 @@ import { hasCommand, hasHandler, hasHandlerString, hasHotkeys } from 'src/types'
 import uniqueId from 'lodash/uniqueId';
 import { icons } from 'lucide-react';
 import styled from '@emotion/styled';
+import { parseFunction } from 'src/utils';
 
 const Container = styled.div`
   padding: 4px 6px;
@@ -78,7 +79,8 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
     event.stopPropagation();
     try {
       if (hasHandler(action)) {
-        await action.handler({
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        await (parseFunction(action).handler as ((params: HandlerParams) => Promise<void> | void))({
           editor: editor!,
           getMarkdown: getMarkdown!,
           replace: replace!,
@@ -130,7 +132,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   }, [itemRef.current, action]);
 
   return (
-    <div ref={ref}>
+    <div ref={ref} style={{ touchAction: 'none' }}>
       <Container
         ref={itemRef}
         id={id}

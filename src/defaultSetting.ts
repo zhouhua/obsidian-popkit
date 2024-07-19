@@ -4,6 +4,7 @@ import * as basicFormat from './actions/basicFormat';
 import * as search from './actions/search';
 
 export default {
+  refreshKey: 1,
   disableNativeToolbar: true,
   customActionList: [],
   actionList: [

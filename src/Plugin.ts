@@ -1,11 +1,11 @@
 import type { App } from 'obsidian';
 import { MarkdownView, Platform, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import PopoverManager, { clearPopover } from './render';
-import type { ISetting } from './types';
+import { hasHandler, ItemType, type ISetting } from './types';
 import defaultSetting from './defaultSetting';
 import renderSetting from './components/setting';
 import type { Root } from 'react-dom/client';
-import { updateSettings } from './utils';
+import { stringifyFunction, updateSettings } from './utils';
 import actions from './actions';
 import L from './L';
 
@@ -69,14 +69,29 @@ export default class PopkitPlugin extends Plugin {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const savedData: Partial<ISetting> = (await this.loadData() || {}) as Partial<ISetting>;
     if (savedData.actionList?.length) {
-      savedData.actionList = updateSettings(actions, savedData.actionList);
-      this.saveSettings();
+      savedData.actionList = updateSettings(actions, savedData.actionList, savedData.refreshKey);
     }
-    this.settings = { ...defaultSetting, ...savedData };
+    this.settings = { ...defaultSetting, ...savedData, refreshKey: defaultSetting.refreshKey };
   }
 
   async saveSettings() {
-    await this.saveData(this.settings);
+    const newSetting = {
+      ...this.settings,
+      actionList: this.settings.actionList.map(item => {
+        if (item.type === ItemType.Divider) {
+          return item;
+        }
+        const { action } = item;
+        if (hasHandler(action)) {
+          return {
+            ...item,
+            action: stringifyFunction(action),
+          };
+        }
+        return item;
+      }),
+    };
+    await this.saveData(newSetting);
   }
 }
 
