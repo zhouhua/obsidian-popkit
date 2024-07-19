@@ -5,7 +5,12 @@ export const PopoverContainer = styled.div<{ type: 'normal' | 'setting'; }>`
   border-radius: 6px;
   background-color: #000;
   overflow: hidden;
-  display: flex;
+  max-width: 100%;
+  ul {
+    display: flex;
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
   ul, li {
     list-style: none;
     padding: 0 !important;

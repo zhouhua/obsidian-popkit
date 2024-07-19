@@ -38,7 +38,32 @@ const Popover: FC<PopoverProps> = ({
     const top = coord.top - rect.top + out!.scrollTop;
     const height = listRef.current?.clientHeight || 0;
     const width = listRef.current?.clientWidth || 0;
-    setPositionLeft(Math.max(left - width / 2, 20));
+    if (width <= rect.width - 40) {
+      if (left - width / 2 <= 20) {
+        setPositionLeft(20);
+      }
+      else if (left + width / 2 > rect.width - 20) {
+        setPositionLeft(rect.width - width - 20);
+      }
+      else {
+        setPositionLeft(left - width / 2);
+      }
+    }
+    else if (width <= rect.width) {
+      if (left - width / 2 <= 0) {
+        setPositionLeft(0);
+      }
+      else if (left + width / 2 > rect.width - 0) {
+        setPositionLeft(rect.width - width - 0);
+      }
+      else {
+        setPositionLeft(left - width / 2);
+      }
+    }
+    else {
+      setPositionLeft(0);
+    }
+    // setPositionLeft(Math.max(left - width / 2, 20));
     setPositionTop(top - 20 - height);
   }
 
