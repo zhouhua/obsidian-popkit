@@ -1,6 +1,6 @@
 {
   "name": "obsidian-popkit",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Select text to instantly access quick tools",
   "main": "main.js",
   "scripts": {
