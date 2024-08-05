@@ -7,6 +7,7 @@ import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import Item from './Item';
 import { changeAction } from 'src/utils';
 import { Devider, PopoverContainer } from './styles';
+import type { InternalPluginName } from 'typings';
 
 interface PopoverProps {
   editor?: Editor;
@@ -94,7 +95,19 @@ const Popover: FC<PopoverProps> = ({
       }
       if (valid && action.dependencies) {
         valid = action.dependencies.every(dep => {
-          return app.plugins.enabledPlugins.has(dep);
+          return [
+            'editor',
+            'app',
+            'workspace',
+            'file-explorer',
+            'markdown',
+            'open-with-default-app',
+            'theme',
+            'window',
+          ].includes(dep)
+          || app.plugins.enabledPlugins.has(dep)
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          || app.internalPlugins.getEnabledPluginById(dep as InternalPluginName);
         });
       }
       return valid;
