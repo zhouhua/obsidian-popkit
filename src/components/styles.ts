@@ -33,3 +33,9 @@ export const Alert = styled.span`
   padding: 0 12px;
   line-height: 28px;
 `;
+
+export const Li = styled.li`
+  &::before {
+    content: none !important;
+  }
+`;

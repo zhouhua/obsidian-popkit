@@ -6,7 +6,7 @@ import { ItemType } from 'src/types';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import Item from './Item';
 import { changeAction } from 'src/utils';
-import { Devider, PopoverContainer } from './styles';
+import { Devider, Li, PopoverContainer } from './styles';
 import type { InternalPluginName } from 'typings';
 
 interface PopoverProps {
@@ -146,7 +146,7 @@ const Popover: FC<PopoverProps> = ({
       >
         <ul ref={listRef}>
           {filterList.map((popoverItem, i) => (
-            <li key={`${i}`}>
+            <Li key={`${i}`}>
               {popoverItem.type === ItemType.Action
                 ? (
                     <Item
@@ -161,7 +161,7 @@ const Popover: FC<PopoverProps> = ({
                     />
                   )
                 : <Devider />}
-            </li>
+            </Li>
           ))}
         </ul>
       </PopoverContainer>
