@@ -46,6 +46,7 @@ const zh: Translation = {
     bing: '用 Bing 搜索',
     wikipedia: '用 Wikipedia 搜索',
     wolframAlpha: '用 Wolfram Alpha 搜索',
+    duckduckgo: '用 DuckDuckGo 搜索',
   },
   setting: {
     delete: '拖动按钮到此处删除',

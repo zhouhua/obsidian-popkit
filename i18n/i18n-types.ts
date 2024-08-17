@@ -191,6 +191,10 @@ type RootTranslation = {
 		 * S​e​a​r​c​h​ ​w​i​t​h​ ​W​o​l​f​r​a​m​ ​A​l​p​h​a
 		 */
 		wolframAlpha: string
+		/**
+		 * S​e​a​r​c​h​ ​w​i​t​h​ ​D​u​c​k​D​u​c​k​G​o
+		 */
+		duckduckgo: string
 	}
 	setting: {
 		/**
@@ -426,6 +430,10 @@ export type TranslationFunctions = {
 		 * Search with Wolfram Alpha
 		 */
 		wolframAlpha: () => LocalizedString
+		/**
+		 * Search with DuckDuckGo
+		 */
+		duckduckgo: () => LocalizedString
 	}
 	setting: {
 		/**

@@ -46,6 +46,7 @@ const en: BaseTranslation = {
     bing: 'Search with Bing',
     wikipedia: 'Search with Wikipedia',
     wolframAlpha: 'Search with Wolfram Alpha',
+    duckduckgo: 'Search with DuckDuckGo',
   },
   setting: {
     delete: 'Drag the button here to delete',

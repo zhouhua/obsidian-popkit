@@ -130,7 +130,6 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
       setTooltip(itemRef.current, action.desc || action.name as string);
     }
   }, [itemRef.current, action]);
-
   return (
     <div ref={ref} style={{ touchAction: 'none' }}>
       <Container
