@@ -34,9 +34,23 @@ const Popover: FC<PopoverProps> = ({
   function calcPosition() {
     const pos = editor!.getCursor();
     const coord: { left: number; top: number; } = editor!.coordsAtPos(pos, false);
+    let left = 0;
+    let top = 0;
     const rect = out!.getBoundingClientRect();
-    const left = coord.left - rect.left;
-    const top = coord.top - rect.top + out!.scrollTop;
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    if (!coord) {
+      const cmContainer = editor!.cm.contentDOM;
+      const outRect = cmContainer.getBoundingClientRect();
+      // const coord: { left: number; top: number; } = editor!.coordsAtPos(pos, false);
+      const offset = editor!.posToOffset(pos);
+      const position = editor?.cm.lineBlockAt(offset);
+      left = outRect.x;
+      top = (position?.top || 0) + cmContainer.offsetTop;
+    }
+    else {
+      left = coord.left - rect.left;
+      top = coord.top - rect.top + out!.scrollTop;
+    }
     const height = listRef.current?.clientHeight || 0;
     const width = listRef.current?.clientWidth || 0;
     if (width <= rect.width - 40) {
