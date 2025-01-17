@@ -6,38 +6,58 @@ import { StrictMode } from 'react';
 import type { ISetting } from './types';
 
 const instanceList: PopoverManager[] = [];
-const AnimationTime = 400;
 
 export default class PopoverManager {
   el: HTMLElement;
   root: Root;
   destroying: boolean = false;
+  editor: Editor;
   constructor(editor: Editor, app: App, settings: ISetting) {
-    instanceList.forEach(instance => {
-      instance.destroy();
-    });
-    instanceList.push(this);
-    /* @ts-igonre */
-    const out = editor.containerEl.find('.cm-scroller');
-    this.el = out.createDiv({
-      cls: ['popkit-popover'],
-    });
-    this.root = createRoot(this.el);
-    this.root.render(
-      <StrictMode>
-        <Popover
-          editor={editor}
-          destory={() => { this.destroy(); }}
-          actions={settings.actionList}
-          out={out}
-          app={app}
-        />
-      </StrictMode>,
-    );
-    this.el.animate([{ opacity: 0 }, { opacity: 1 }], {
-      duration: AnimationTime,
-      easing: 'ease-in-out',
-    });
+    const sameInstance = instanceList.find(instance => instance.editor.containerEl === editor.containerEl);
+    try {
+      instanceList.forEach(instance => {
+        if (instance.editor.containerEl !== editor.containerEl) {
+          instance.destroy();
+        }
+      });
+    }
+    catch (error) {
+      console.warn(error);
+    }
+    if (!sameInstance) {
+      this.editor = editor;
+      instanceList.push(this);
+      const out = editor.containerEl.find('.cm-scroller');
+      /* @ts-igonre */
+      this.el = out.createDiv({
+        cls: ['popkit-popover'],
+      });
+      this.root = createRoot(this.el);
+      this.root.render(
+        <StrictMode>
+          <Popover
+            destory={() => {
+              this.destroy();
+            }}
+            editor={editor}
+            actions={settings.actionList}
+            out={out}
+            app={app}
+            type="normal"
+          />
+        </StrictMode>,
+      );
+    }
+    else {
+      const event = new Event('popkit-popover-render');
+      setTimeout(() => {
+        window.dispatchEvent(event);
+      }, 0);
+    }
+    if (sameInstance) {
+      return sameInstance;
+    }
+    return this;
   }
 
   destroy() {
@@ -45,18 +65,12 @@ export default class PopoverManager {
       return;
     }
     this.destroying = true;
-    const animation = this.el.animate([{ opacity: 1 }, { opacity: 0 }], {
-      duration: AnimationTime,
-      easing: 'ease-in-out',
-    });
-    animation.onfinish = () => {
-      this.root.unmount();
-      this.el.remove();
-      const index = instanceList.indexOf(this);
-      if (index !== -1) {
-        instanceList.splice(index, 1);
-      }
-    };
+    this.root.unmount();
+    this.el.remove();
+    const index = instanceList.indexOf(this);
+    if (index !== -1) {
+      instanceList.splice(index, 1);
+    }
   }
 }
 

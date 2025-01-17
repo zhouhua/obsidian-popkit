@@ -1,5 +1,5 @@
 import type { App } from 'obsidian';
-import { MarkdownView, Platform, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { Platform, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import PopoverManager, { clearPopover } from './render';
 import { hasHandler, ItemType, type ISetting } from './types';
 import defaultSetting from './defaultSetting';
@@ -8,18 +8,13 @@ import type { Root } from 'react-dom/client';
 import { stringifyFunction, updateSettings } from './utils';
 import actions from './actions';
 import L from './L';
+import { popoverPlugin } from './cm-extension';
 
 export default class PopkitPlugin extends Plugin {
   settings: ISetting;
   async onload() {
     await this.loadSettings();
-    this.registerDomEvent(
-      document.body,
-      'pointerup',
-      e => {
-        this.onpointerup(e);
-      },
-    );
+    this.registerEditorExtension([popoverPlugin(this.settings, this.app)]);
     this.registerDomEvent(
       document.body,
       'contextmenu',
@@ -43,24 +38,6 @@ export default class PopkitPlugin extends Plugin {
     });
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     this.addSettingTab(new PopkitSetting(this.app, this));
-  }
-
-  onpointerup(e: PointerEvent) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    if ((e.target as HTMLElement).closest('.popkit-popover')) {
-      return;
-    }
-    const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-    if (view?.getMode() !== 'source') {
-      return;
-    }
-    const { editor } = view;
-    clearPopover();
-    setTimeout(() => {
-      if (editor.somethingSelected()) {
-        new PopoverManager(editor, this.app, this.settings);
-      }
-    }, 20);
   }
 
   onunload() {}

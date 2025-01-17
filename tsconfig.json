@@ -12,8 +12,22 @@
     "strictNullChecks": true,
     "noImplicitReturns": true,
     "allowSyntheticDefaultImports": true,
-    "lib": ["DOM", "ES7"],
+    "lib": [
+      "DOM",
+      "ES7"
+    ],
     "outDir": "dist",
+    "types": [
+      "node",
+      "obsidian-typings",
+      "@codemirror/state",
+      "@codemirror/view"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx", "src/**/*.d.ts", "*.mjs"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "src/**/*.d.ts",
+    "*.mjs"
+  ]
 }

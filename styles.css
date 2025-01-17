@@ -1,2 +1,157 @@
-.popkit-popover {
+.popkit-popover .popkit-container {
+  border-radius: 6px;
+  background-color: #000;
+  overflow: hidden;
+  max-width: 100%;
+  left: 0;
+  top: 0;
+}
+
+.popkit-popover .popkit-container.popkit-normal {
+  position: absolute;
+  display: block;
+}
+
+.popkit-popover .popkit-container.popkit-setting {
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.popkit-popover .popkit-container ul {
+  display: flex;
+  max-width: 100%;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.popkit-popover .popkit-container li {
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+  display: flex;
+}
+
+.popkit-popover .popkit-container li::before {
+  content: none !important;
+}
+
+.popkit-popover .popkit-divider {
+  width: 1px;
+  margin: 6px 4px;
+  background-color: #fff;
+  height: 16px;
+}
+
+.popkit-popover .popkit-alert {
+  font-size: 12px;
+  padding: 0 12px;
+  line-height: 28px;
+}
+
+.popkit-setting-section .popkit-item,
+.popkit-popover .popkit-item {
+  padding: 4px 6px;
+  transition: all 200ms ease-in-out;
+  opacity: 0.8;
+  cursor: pointer;
+  background-color: #000;
+  font-family: var(--font-default);
+  color: #fff;
+  height: 28px;
+  font-size: 16px;
+  line-height: 20px;
+  border-radius: 4px;
+}
+
+.popkit-setting-section .popkit-item:hover
+.popkit-popover .popkit-item:hover {
+  opacity: 1;
+  background-color: var(--color-blue);
+}
+
+.popkit-setting-section .popkit-item-image,
+.popkit-popover .popkit-item-image {
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  height: 20px;
+  width: 20px;
+}
+
+.popkit-setting-section .popkit-item-text,
+.popkit-popover .popkit-item-text {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popkit-setting-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid var(--background-modifier-border);
+}
+
+.popkit-setting-form-icon-container {
+  background-color: #000;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.popkit-setting-section {
+  position: relative;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.popkit-setting-section h3 {
+  margin-top: 0;
+}
+
+.popkit-setting-section p {
+  opacity: 0.6;
+  margin: 0;
+}
+
+.popkit-setting-actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.popkit-setting-droppable-area {
+  margin: 20px 0;
+}
+
+.popkit-setting-delete-area {
+  height: 40px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ccc;
+  transition: all 200ms ease-in-out;
+}
+
+.popkit-setting-delete-area.popkit-setting-delete-area-highlight {
+  border-color: red;
+  color: red;
+}
+
+.popkit-setting-add {
+  flex-grow: 1;
+  min-width: 20px;
+  height: 28px;
 }

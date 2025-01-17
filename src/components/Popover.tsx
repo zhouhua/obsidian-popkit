@@ -1,13 +1,12 @@
 import type { App, Editor } from 'obsidian';
 import type { FC } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PopoverItem } from 'src/types';
 import { ItemType } from 'src/types';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import Item from './Item';
 import { changeAction } from 'src/utils';
-import { Devider, Li, PopoverContainer } from './styles';
-import type { InternalPluginName } from 'typings';
+import type { InternalPluginName } from 'obsidian-typings';
 
 interface PopoverProps {
   editor?: Editor;
@@ -30,20 +29,19 @@ const Popover: FC<PopoverProps> = ({
   const listRef = useRef<HTMLUListElement>(null);
   const [positionLeft, setPositionLeft] = useState(0);
   const [positionTop, setPositionTop] = useState(0);
+  const [firstRender, setFirstRender] = useState(-1);
 
   function calcPosition() {
     const pos = editor!.getCursor();
-    const coord: { left: number; top: number; } = editor!.coordsAtPos(pos, false);
+    const coord = editor!.coordsAtPos(pos);
     let left = 0;
     let top = 0;
     const rect = out!.getBoundingClientRect();
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+
     if (!coord) {
       const cmContainer = editor!.cm.contentDOM;
       const outRect = cmContainer.getBoundingClientRect();
-      // const coord: { left: number; top: number; } = editor!.coordsAtPos(pos, false);
-      const offset = editor!.posToOffset(pos);
-      const position = editor?.cm.lineBlockAt(offset);
+      const position = editor?.cm.lineBlockAt(editor.posToOffset(pos));
       left = outRect.x;
       top = (position?.top || 0) + cmContainer.offsetTop;
     }
@@ -51,35 +49,49 @@ const Popover: FC<PopoverProps> = ({
       left = coord.left - rect.left;
       top = coord.top - rect.top + out!.scrollTop;
     }
+
     const height = listRef.current?.clientHeight || 0;
     const width = listRef.current?.clientWidth || 0;
+
     if (width <= rect.width - 40) {
       if (left - width / 2 <= 20) {
-        setPositionLeft(20);
+        left = 20;
       }
       else if (left + width / 2 > rect.width - 20) {
-        setPositionLeft(rect.width - width - 20);
+        left = rect.width - width - 20;
       }
       else {
-        setPositionLeft(left - width / 2);
+        left = left - width / 2;
       }
     }
     else if (width <= rect.width) {
       if (left - width / 2 <= 0) {
-        setPositionLeft(0);
+        left = 0;
       }
-      else if (left + width / 2 > rect.width - 0) {
-        setPositionLeft(rect.width - width - 0);
+      else if (left + width / 2 > rect.width) {
+        left = rect.width - width;
       }
       else {
-        setPositionLeft(left - width / 2);
+        left = left - width / 2;
       }
     }
     else {
-      setPositionLeft(0);
+      left = 0;
     }
-    // setPositionLeft(Math.max(left - width / 2, 20));
-    setPositionTop(top - 20 - height);
+
+    const spaceAbove = top;
+    const spaceBelow = rect.height - top;
+
+    if (height < spaceAbove || spaceBelow < height) {
+      top = top - height - 5;
+    }
+    else {
+      top = top + 20;
+    }
+    if (left !== 0 && top !== 0) {
+      setPositionLeft(left);
+      setPositionTop(top);
+    }
   }
 
   function getMarkdown() {
@@ -119,9 +131,9 @@ const Popover: FC<PopoverProps> = ({
             'theme',
             'window',
           ].includes(dep)
-          || app.plugins.enabledPlugins.has(dep)
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          || app.internalPlugins.getEnabledPluginById(dep as InternalPluginName);
+            || app.plugins.enabledPlugins.has(dep)
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+            || app.internalPlugins.getEnabledPluginById(dep as InternalPluginName);
         });
       }
       return valid;
@@ -142,43 +154,55 @@ const Popover: FC<PopoverProps> = ({
       const observer = new ResizeObserver(calcPosition);
       observer.observe(out!);
       out!.addEventListener('scroll', calcPosition);
+      window.addEventListener('popkit-popover-render', calcPosition);
       return () => {
         observer.unobserve(out!);
         out!.removeEventListener('scroll', calcPosition);
+        window.removeEventListener('popkit-popover-render', calcPosition);
       };
     }
   }, [type]);
 
+  useLayoutEffect(() => {
+    if (positionLeft !== 0 && positionTop !== 0) {
+      setFirstRender(pre => Math.min(pre + 1, 10));
+    }
+  }, [positionLeft, positionTop]);
+
   if (!filterList.some(i => i.type === ItemType.Action)) {
     return null;
   }
+
   return (
-    <ClickAwayListener onClickAway={() => { type === 'normal' && destory!(); }}>
-      <PopoverContainer
-        type={type}
-        style={{ left: `${positionLeft}px`, top: `${positionTop}px` }}
+    <ClickAwayListener mouseEvent="onPointerDown" touchEvent={false} onClickAway={() => { type === 'normal' && destory!(); }}>
+      <div
+        style={{
+          transform: type === 'normal' ? `translate(${positionLeft}px, ${positionTop}px)` : undefined,
+          transition: firstRender <= 0 ? 'none' : 'transform 50ms ease-in-out',
+          opacity: firstRender < 0 ? 0 : 1,
+        }}
+        className={`popkit-container ${type === 'normal' ? 'popkit-normal' : 'popkit-setting'}`}
       >
         <ul ref={listRef}>
           {filterList.map((popoverItem, i) => (
-            <Li key={`${i}`}>
-              {popoverItem.type === ItemType.Action
-                ? (
-                    <Item
-                      action={popoverItem.action}
-                      editor={editor}
-                      app={app}
-                      getMarkdown={getMarkdown}
-                      selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
-                      finish={destory}
-                      replace={replace}
-                      type={type}
-                    />
-                  )
-                : <Devider />}
-            </Li>
+            <li key={`${i}`}>
+              {popoverItem.type === ItemType.Action && (
+                <Item
+                  action={popoverItem.action}
+                  editor={editor}
+                  app={app}
+                  getMarkdown={getMarkdown}
+                  selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
+                  finish={destory}
+                  replace={replace}
+                  type={type}
+                />
+              )}
+              {popoverItem.type === ItemType.Divider && <div className="popkit-divider" />}
+            </li>
           ))}
         </ul>
-      </PopoverContainer>
+      </div>
     </ClickAwayListener>
   );
 };

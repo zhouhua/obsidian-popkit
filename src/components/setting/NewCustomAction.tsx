@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import { icons } from 'lucide-react';
 import type { App, Command, InternalPlugin, InternalPluginInstance, Plugin } from 'obsidian';
 import { Notice } from 'obsidian';
@@ -8,24 +7,7 @@ import L from 'src/L';
 import { fileToBase64 } from 'src/utils';
 import startCase from 'lodash/startCase';
 import type { Action } from 'src/types';
-import type { InternalPluginName } from 'typings';
-
-const Form = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 20px;
-  border-radius: 6px;
-  border: 1px solid var(--background-modifier-border);
-`;
-
-const IconContainer = styled.div`
-  background-color: #000;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  padding: 2px;
-`;
+import type { InternalPluginName } from 'obsidian-typings';
 
 const NewCustomAction: FC<{
   app: App;
@@ -127,7 +109,7 @@ const NewCustomAction: FC<{
   };
 
   return (
-    <Form>
+    <div className="popkit-setting-form">
       <h3>{L.setting.customTitle()}</h3>
       <div
         className="setting-item"
@@ -195,15 +177,15 @@ const NewCustomAction: FC<{
         <div className="setting-item-control">
           {icon && (Icon
             ? (
-                <IconContainer>
-                  <Icon color="#fff" size={20} />
-                </IconContainer>
-              )
+              <div className="popkit-setting-form-icon-container">
+                <Icon color="#fff" size={20} />
+              </div>
+            )
             : (
-                <IconContainer>
-                  <img src={icon} width="20" height="20" />
-                </IconContainer>
-              )
+              <div className="popkit-setting-form-icon-container">
+                <img src={icon} width="20" height="20" />
+              </div>
+            )
           )}
           <button onClick={() => inputReference.current?.click()}>
             {L.setting.upload()}
@@ -243,7 +225,7 @@ const NewCustomAction: FC<{
           <button onClick={add}>{L.setting.add()}</button>
         </div>
       </div>
-    </Form>
+    </div>
   );
 };
 

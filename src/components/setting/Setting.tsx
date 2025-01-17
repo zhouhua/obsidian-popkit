@@ -1,12 +1,11 @@
 import type { App } from 'obsidian';
-import type { FC } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import { useCallback, useState } from 'react';
 import type { ISetting, PopoverItem, Action } from 'src/types';
 import { ItemType } from 'src/types';
 import buildIn from '../../actions';
 import Item from '../Item';
 import { changeAction } from 'src/utils';
-import styled from '@emotion/styled';
 import type {
   DragStartEvent,
   DragEndEvent,
@@ -27,54 +26,12 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import DraggableWrap from './DraggableWrap';
-import { Devider, PopoverContainer } from '../styles';
 import SortableItem from './SortableItem';
 import DroppableWrap from './DroppableWrap';
 import L from 'src/L';
 import NewCustomAction from './NewCustomAction';
 
-const Section = styled.section`
-  position: relative;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  h3 {
-    margin-top: 0;
-  }
-  p {
-    opacity: 0.6;
-    margin: 0;
-  }
-`;
-
-const ActionsContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-`;
-
-const DrapArea = styled.div`
-  margin: 20px 0;
-`;
-
-const DeleteArea = styled.div<{ hightlight: boolean; }>`
-  height: 40px;
-  border: 1px dashed ${props => (props.hightlight ? 'red' : '#ccc')};
-  border-radius: 4px;
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: ${props => (props.hightlight ? 'red' : '#ccc')};
-  transition: all 200ms ease-in-out;
-`;
-
-const Add = styled.div`
-  flex-grow: 1;
-  min-width: 20px;
-  height: 28px;
-`;
+const Add: FC<PropsWithChildren> = ({ children, ...props }) => <div className="popkit-setting-add" {...props}>{children}</div>;
 
 const Setting: FC<{
   initialSetting: ISetting;
@@ -105,10 +62,24 @@ const Setting: FC<{
     const [type, id] = `${active.id}`.split('_');
     if (type === 'custom') {
       setHighlight(true);
+      setActiveItem({
+        action: formData.customActionList[Number(id)],
+        type: ItemType.Action,
+        id: '',
+      });
     }
     else if (type === 'list') {
       const activeAction = formData.actionList[Number(id)];
       setActiveItem(activeAction);
+      setHighlight(true);
+    }
+    else if (type === 'all') {
+      const activeAction = buildIn[Number(id)];
+      setActiveItem({
+        action: activeAction,
+        type: ItemType.Action,
+        id: `${active.id}`,
+      });
       setHighlight(true);
     }
   }
@@ -230,9 +201,9 @@ const Setting: FC<{
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
     >
-      <Section>
+      <section className="popkit-setting-section">
         <h3>{L.setting.buildIn()}</h3>
-        <ActionsContainer>
+        <div className="popkit-setting-actions-container">
           {buildIn.map((action, i) => (
             <DraggableWrap key={`all_${i}`} id={`all_${i}`}>
               <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
@@ -249,26 +220,43 @@ const Setting: FC<{
               type="setting"
             />
           </DraggableWrap>
-        </ActionsContainer>
-      </Section>
-      <Section>
+        </div>
+      </section>
+      <section className="popkit-setting-section">
         <h3>{L.setting.custom()}</h3>
-        <ActionsContainer>
+        <div className="popkit-setting-actions-container">
           {formData.customActionList.length
-            ? formData.customActionList.map((action, i) => (
-              <DraggableWrap key={`custom_${i}`} id={`custom_${i}`}>
-                <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
-              </DraggableWrap>
-            ))
+            // ? formData.customActionList.map((action, i) => (
+            //   <DraggableWrap key={`custom_${i}`} id={`custom_${i}`}>
+            //     <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
+            //   </DraggableWrap>
+            // ))
+            ? (
+              <SortableContext
+                items={formData.customActionList}
+                strategy={horizontalListSortingStrategy}
+              >
+                {formData.customActionList.map((action, i) => (
+                  <SortableItem key={`custom_${i}`} id={`custom_${i}`}>
+                    <Item
+                      app={app}
+                      action={changeAction(action, 'setting', action.exampleText)}
+                      type="setting"
+                      selection={action.exampleText || ''}
+                    />
+                  </SortableItem>
+                ))}
+              </SortableContext>
+            )
             : (
-                <p>
-                  {L.setting.empty()}
-                </p>
-              )}
-        </ActionsContainer>
-      </Section>
-      <DrapArea>
-        <PopoverContainer type="setting">
+              <p>
+                {L.setting.empty()}
+              </p>
+            )}
+        </div>
+      </section>
+      <div className="popkit-setting-droppable-area popkit-popover">
+        <div className="popkit-container popkit-setting">
           <SortableContext
             items={formData.actionList}
             strategy={horizontalListSortingStrategy}
@@ -278,35 +266,42 @@ const Setting: FC<{
                 {
                   popoverItem.type === ItemType.Action
                     ? (
-                        <Item
-                          action={changeAction(popoverItem.action, 'setting', popoverItem.action.exampleText)}
-                          selection={popoverItem.action.exampleText || ''}
-                          app={app}
-                          type="setting"
-                        />
-                      )
-                    : <Devider />
+                      <Item
+                        action={changeAction(popoverItem.action, 'setting', popoverItem.action.exampleText)}
+                        selection={popoverItem.action.exampleText || ''}
+                        app={app}
+                        type="setting"
+                      />
+                    )
+                    : <div className="popkit-divider" />
                 }
               </SortableItem>
             ))}
           </SortableContext>
           <DroppableWrap id="add" Component={Add} />
-        </PopoverContainer>
-        <DroppableWrap id="delete"><DeleteArea hightlight={highlight}>{L.setting.delete()}</DeleteArea></DroppableWrap>
-      </DrapArea>
+        </div>
+        <DroppableWrap id="delete">
+          <div className={`popkit-setting-delete-area${highlight ? ' popkit-setting-delete-area-highlight' : ''}`}>{L.setting.delete()}</div>
+        </DroppableWrap>
+      </div>
 
       <NewCustomAction app={app} onChange={addCustomAction} />
-      <DragOverlay>
+      <DragOverlay
+        style={{
+          opacity: 0.8,
+        }}
+        className="popkit-popover"
+      >
         {activeItem && (
           activeItem.type === ItemType.Action
             ? (
-                <Item
-                  app={app}
-                  action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
-                  type="setting"
-                />
-              )
-            : <Devider />)}
+              <Item
+                app={app}
+                action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
+                type="setting"
+              />
+            )
+            : <div className="popkit-divider" />)}
       </DragOverlay>
     </DndContext>
   );

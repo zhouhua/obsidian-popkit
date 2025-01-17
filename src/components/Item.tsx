@@ -6,41 +6,7 @@ import type { Action, HandlerParams } from 'src/types';
 import { hasCommand, hasHandler, hasHandlerString, hasHotkeys } from 'src/types';
 import uniqueId from 'lodash/uniqueId';
 import { icons } from 'lucide-react';
-import styled from '@emotion/styled';
 import { parseFunction } from 'src/utils';
-
-const Container = styled.div`
-  padding: 4px 6px;
-  transition: all 200ms ease-in-out;
-  opacity: 0.8;
-  cursor: pointer;
-  background-color: #000;
-  font-family: var(--font-default);
-  color: #fff;
-  height: 28px;
-  font-size: 16px;
-  line-height: 20px;
-  border-radius: 4px;
-  &:hover {
-    opacity: 1;
-    background-color: var(--color-blue);
-  }
-`;
-
-const Image = styled.div`
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-  height: 20px;
-  width: 20px;
-`;
-
-const Text = styled.div`
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
 
 interface ItemProps {
   action: Action;
@@ -132,33 +98,30 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   }, [itemRef.current, action]);
   return (
     <div ref={ref} style={{ touchAction: 'none' }}>
-      <Container
+      <div
         ref={itemRef}
         id={id}
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        className="popkit-item"
         onClick={click}
       >
-        {icon
-          ? (
-              /^https?:|^data:/.test(icon)
-                ? (
-                    <Image
-                      style={{ backgroundImage: `url(${icon})` }}
-                    />
-                  )
-                : icon in icons
-                  ? (
-                      <Icon size={20} color="#fff" />
-                    )
-                  : (
-                      <Text>{icon}</Text>
-                    )
+        {icon && (
+          /^https?:|^data:/.test(icon)
+            ? (
+              <div className="popkit-item-image" style={{ backgroundImage: `url(${icon})` }} />
             )
-          : (
-              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-              <Text>{action.name as string}</Text>
-            )}
-      </Container>
+            : icon in icons
+              ? (
+                <Icon size={20} color="#fff" />
+              )
+              : (
+                <div className="popkit-item-text">{icon}</div>
+              )
+        )}
+        {!icon && (
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          <div className="popkit-item-text">{action.name as string}</div>
+        )}
+      </div>
     </div>
   );
 });
