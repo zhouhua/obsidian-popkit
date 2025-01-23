@@ -1,6 +1,6 @@
 import type { App } from 'obsidian';
 import { Platform, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import PopoverManager, { clearPopover } from './render';
+import PopoverManager from './render';
 import { hasHandler, ItemType, type ISetting } from './types';
 import defaultSetting from './defaultSetting';
 import renderSetting from './components/setting';
@@ -22,17 +22,11 @@ export default class PopkitPlugin extends Plugin {
         this.settings.disableNativeToolbar && Platform.isMobile && e.preventDefault();
       },
     );
-    this.registerDomEvent(
-      document.body,
-      'keydown',
-      clearPopover,
-    );
     this.addCommand({
       id: 'show',
       name: 'Show PopKit',
       // hotkeys: [{ modifiers: ["Mod"], key: "." }],
       editorCallback: editor => {
-        clearPopover();
         new PopoverManager(editor, this.app, this.settings);
       },
     });

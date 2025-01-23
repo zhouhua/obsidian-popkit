@@ -3,7 +3,6 @@ import type { FC } from 'react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PopoverItem } from 'src/types';
 import { ItemType } from 'src/types';
-import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import Item from './Item';
 import { changeAction } from 'src/utils';
 import type { InternalPluginName } from 'obsidian-typings';
@@ -174,36 +173,34 @@ const Popover: FC<PopoverProps> = ({
   }
 
   return (
-    <ClickAwayListener mouseEvent="onPointerDown" touchEvent={false} onClickAway={() => { type === 'normal' && destory!(); }}>
-      <div
-        style={{
-          transform: type === 'normal' ? `translate(${positionLeft}px, ${positionTop}px)` : undefined,
-          transition: firstRender <= 0 ? 'none' : 'transform 50ms ease-in-out',
-          opacity: firstRender < 0 ? 0 : 1,
-        }}
-        className={`popkit-container ${type === 'normal' ? 'popkit-normal' : 'popkit-setting'}`}
-      >
-        <ul ref={listRef}>
-          {filterList.map((popoverItem, i) => (
-            <li key={`${i}`}>
-              {popoverItem.type === ItemType.Action && (
-                <Item
-                  action={popoverItem.action}
-                  editor={editor}
-                  app={app}
-                  getMarkdown={getMarkdown}
-                  selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
-                  finish={destory}
-                  replace={replace}
-                  type={type}
-                />
-              )}
-              {popoverItem.type === ItemType.Divider && <div className="popkit-divider" />}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </ClickAwayListener>
+    <div
+      style={{
+        transform: type === 'normal' ? `translate(${positionLeft}px, ${positionTop}px)` : undefined,
+        transition: firstRender <= 0 ? 'none' : 'transform 50ms ease-in-out',
+        opacity: firstRender < 0 ? 0 : 1,
+      }}
+      className={`popkit-container ${type === 'normal' ? 'popkit-normal' : 'popkit-setting'}`}
+    >
+      <ul ref={listRef}>
+        {filterList.map((popoverItem, i) => (
+          <li key={`${i}`}>
+            {popoverItem.type === ItemType.Action && (
+              <Item
+                action={popoverItem.action}
+                editor={editor}
+                app={app}
+                getMarkdown={getMarkdown}
+                selection={(type === 'normal' ? selection : popoverItem.action.exampleText) || ''}
+                finish={destory}
+                replace={replace}
+                type={type}
+              />
+            )}
+            {popoverItem.type === ItemType.Divider && <div className="popkit-divider" />}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

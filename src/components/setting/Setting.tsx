@@ -9,6 +9,7 @@ import { changeAction } from 'src/utils';
 import type {
   DragStartEvent,
   DragEndEvent,
+  DragOverEvent,
 } from '@dnd-kit/core';
 import {
   DndContext,
@@ -18,6 +19,7 @@ import {
   useSensor,
   useSensors,
   DragOverlay,
+  defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -41,6 +43,7 @@ const Setting: FC<{
   const [formData, setFormData] = useState<ISetting>(initialSetting);
   const [highlight, setHighlight] = useState<boolean>(false);
   const [activeItem, setActiveItem] = useState<PopoverItem | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
 
   const update = useCallback(
     (data: ISetting) => {
@@ -60,13 +63,15 @@ const Setting: FC<{
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
     const [type, id] = `${active.id}`.split('_');
+
     if (type === 'custom') {
-      setHighlight(true);
+      const action = formData.customActionList[Number(id)];
       setActiveItem({
-        action: formData.customActionList[Number(id)],
+        action,
         type: ItemType.Action,
-        id: '',
+        id: `custom_${id}`,
       });
+      setHighlight(true);
     }
     else if (type === 'list') {
       const activeAction = formData.actionList[Number(id)];
@@ -74,13 +79,18 @@ const Setting: FC<{
       setHighlight(true);
     }
     else if (type === 'all') {
-      const activeAction = buildIn[Number(id)];
+      const action = buildIn[Number(id)];
       setActiveItem({
-        action: activeAction,
+        action,
         type: ItemType.Action,
-        id: `${active.id}`,
+        id: `all_${id}`,
       });
-      setHighlight(true);
+    }
+    else if (type === 'divider') {
+      setActiveItem({
+        type: ItemType.Divider,
+        id: 'divider',
+      });
     }
   }
 
@@ -89,20 +99,34 @@ const Setting: FC<{
     setHighlight(false);
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    const { over } = event;
+    setOverId(over?.id as string || null);
+  }
+
   function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    // 重置状态
     setActiveItem(null);
     setHighlight(false);
-    const { active, over } = event;
+    setOverId(null);
+
     if (!over) {
       return;
     }
+
     const [activType, activeId] = `${active.id}`.split('_');
     const [overType, overId] = `${over.id}`.split('_');
+
+    // 如果是拖到 buildIn 区域，直接返回
     if (overType === 'all') {
       return;
     }
+
     let newList = [...formData.actionList];
     let newCustomList = [...formData.customActionList];
+
     if (activType === 'all' && overType === 'list') {
       // 设置新的按钮
       newList.splice(Number(overId), 0, {
@@ -200,13 +224,18 @@ const Setting: FC<{
       onDragEnd={handleDragEnd}
       onDragStart={handleDragStart}
       onDragCancel={handleDragCancel}
+      onDragOver={handleDragOver}
     >
       <section className="popkit-setting-section">
         <h3>{L.setting.buildIn()}</h3>
         <div className="popkit-setting-actions-container">
           {buildIn.map((action, i) => (
             <DraggableWrap key={`all_${i}`} id={`all_${i}`}>
-              <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
+              <Item
+                app={app}
+                action={changeAction(action, 'setting', action.exampleText)}
+                type="setting"
+              />
             </DraggableWrap>
           ))}
           <DraggableWrap id="divider">
@@ -226,14 +255,9 @@ const Setting: FC<{
         <h3>{L.setting.custom()}</h3>
         <div className="popkit-setting-actions-container">
           {formData.customActionList.length
-            // ? formData.customActionList.map((action, i) => (
-            //   <DraggableWrap key={`custom_${i}`} id={`custom_${i}`}>
-            //     <Item app={app} action={changeAction(action, 'setting', action.exampleText)} type="setting" />
-            //   </DraggableWrap>
-            // ))
             ? (
               <SortableContext
-                items={formData.customActionList}
+                items={formData.customActionList.map((_, i) => `custom_${i}`)}
                 strategy={horizontalListSortingStrategy}
               >
                 {formData.customActionList.map((action, i) => (
@@ -249,9 +273,7 @@ const Setting: FC<{
               </SortableContext>
             )
             : (
-              <p>
-                {L.setting.empty()}
-              </p>
+              <p>{L.setting.empty()}</p>
             )}
         </div>
       </section>
@@ -261,10 +283,17 @@ const Setting: FC<{
             items={formData.actionList}
             strategy={horizontalListSortingStrategy}
           >
-            {formData.actionList.map((popoverItem, i) => (
-              <SortableItem key={`list_${i}`} id={`list_${i}`}>
-                {
-                  popoverItem.type === ItemType.Action
+            {formData.actionList.map((popoverItem, i) => {
+              const id = `list_${i}`;
+              const isOver = overId === id;
+
+              return (
+                <SortableItem
+                  key={id}
+                  id={id}
+                  className={isOver ? 'popkit-sortable-over' : ''}
+                >
+                  {popoverItem.type === ItemType.Action
                     ? (
                       <Item
                         action={changeAction(popoverItem.action, 'setting', popoverItem.action.exampleText)}
@@ -273,10 +302,12 @@ const Setting: FC<{
                         type="setting"
                       />
                     )
-                    : <div className="popkit-divider" />
-                }
-              </SortableItem>
-            ))}
+                    : (
+                      <div className="popkit-divider" />
+                    )}
+                </SortableItem>
+              );
+            })}
           </SortableContext>
           <DroppableWrap id="add" Component={Add} />
         </div>
@@ -288,20 +319,38 @@ const Setting: FC<{
       <NewCustomAction app={app} onChange={addCustomAction} />
       <DragOverlay
         style={{
-          opacity: 0.8,
+          opacity: 0.7,
+          cursor: 'grabbing',
+          transformOrigin: '0 0',
         }}
-        className="popkit-popover"
+        dropAnimation={{
+          duration: 200,
+          easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
+          sideEffects: defaultDropAnimationSideEffects({
+            styles: {
+              active: {
+                opacity: '0.5',
+              },
+            },
+          }),
+        }}
+        className="popkit-popover popkit-drag-overlay"
       >
         {activeItem && (
-          activeItem.type === ItemType.Action
-            ? (
-              <Item
-                app={app}
-                action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
-                type="setting"
-              />
-            )
-            : <div className="popkit-divider" />)}
+          <div style={{ transform: 'scale(1.05)' }}>
+            {activeItem.type === ItemType.Action
+              ? (
+                <Item
+                  app={app}
+                  action={changeAction(activeItem.action, 'setting', activeItem.action.exampleText)}
+                  type="setting"
+                />
+              )
+              : (
+                <div className="popkit-divider" />
+              )}
+          </div>
+        )}
       </DragOverlay>
     </DndContext>
   );

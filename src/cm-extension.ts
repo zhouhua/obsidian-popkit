@@ -2,8 +2,7 @@
 import type { EditorView, ViewUpdate } from '@codemirror/view';
 import { ViewPlugin } from '@codemirror/view';
 import type { ISetting } from './types';
-import PopoverManager from './render';
-import { clearPopover } from './render';
+import PopoverManager, { clearPopover } from './render';
 import type { Editor, App, EditorPosition } from 'obsidian';
 
 export function popoverPlugin(settings: ISetting, app: App) {
@@ -55,16 +54,22 @@ export function popoverPlugin(settings: ISetting, app: App) {
       } as unknown as Editor;
     }
 
-    update(update: ViewUpdate): void {
-      if (update.selectionSet) {
-        const selection = update.state.selection.main;
+    update = (update: ViewUpdate): void => {
+      // 检查是否有真正的选择变化
+      const hasSelectionChange = update.transactions.some(tr => tr.selection);
 
-        if (!selection.empty) {
-          const selectedText = this.view.state.sliceDoc(selection.from, selection.to);
+      if (hasSelectionChange) {
+        const selection = this.view.state.selection.main;
+        const selectedText = selection.empty ? '' : this.view.state.sliceDoc(selection.from, selection.to);
+        // 如果有选中内容
+        if (selectedText) {
           const editor = this.createEditor(selectedText, selection);
           new PopoverManager(editor, app, settings);
         }
+        else {
+          clearPopover();
+        }
       }
-    }
+    };
   });
 }

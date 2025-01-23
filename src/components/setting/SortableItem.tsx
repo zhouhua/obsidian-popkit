@@ -1,7 +1,7 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const SortableItem = ({ children, id }: { children: React.ReactNode; id: string; }) => {
+const SortableItem = ({ children, id, className }: { children: React.ReactNode; id: string; className?: string; }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
   const style = {
@@ -11,7 +11,14 @@ const SortableItem = ({ children, id }: { children: React.ReactNode; id: string;
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
+      <div
+        style={{
+          transition: 'all 0.2s ease',
+        }}
+        className={className}
+      >
+        {children}
+      </div>
     </div>
   );
 };
