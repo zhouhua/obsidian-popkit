@@ -93,7 +93,10 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   useEffect(() => {
     if (itemRef.current) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      setTooltip(itemRef.current, action.desc || action.name as string);
+      setTooltip(itemRef.current, action.desc || action.name as string, {
+        placement: 'top',
+        delay: 50,
+      });
     }
   }, [itemRef.current, action]);
   return (
