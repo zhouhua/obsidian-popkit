@@ -249,6 +249,14 @@ type RootTranslation = {
 		 * D​i​s​a​b​l​e​ ​t​h​e​ ​s​y​s​t​e​m​ ​t​o​o​l​b​a​r​ ​w​h​e​n​ ​s​e​l​e​c​t​i​n​g​ ​t​e​x​t
 		 */
 		disableNativeToolbar: string
+		/**
+		 * N​o​ ​r​e​s​u​l​t​s​.
+		 */
+		noResult: string
+		/**
+		 * P​l​e​a​s​e​ ​p​i​c​k​ ​a​n​ ​i​t​e​m​.​.​.
+		 */
+		pickItem: string
 	}
 }
 
@@ -488,6 +496,14 @@ export type TranslationFunctions = {
 		 * Disable the system toolbar when selecting text
 		 */
 		disableNativeToolbar: () => LocalizedString
+		/**
+		 * No results.
+		 */
+		noResult: () => LocalizedString
+		/**
+		 * Please pick an item...
+		 */
+		pickItem: () => LocalizedString
 	}
 }
 

@@ -22,12 +22,18 @@
       "obsidian-typings",
       "@codemirror/state",
       "@codemirror/view"
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "src/**/*.d.ts",
-    "*.mjs"
+    "*.mjs",
+    "tailwind.config.js"
   ]
 }
