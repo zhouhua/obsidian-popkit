@@ -6,6 +6,7 @@ import * as search from './actions/search';
 export default {
   refreshKey: 1,
   disableNativeToolbar: true,
+  mouseSelectionOnly: false,
   customActionList: [],
   actionList: [
     ...Object.values(basicFormat).map(action => ({ type: ItemType.Action, action })),

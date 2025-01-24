@@ -250,6 +250,10 @@ type RootTranslation = {
 		 */
 		disableNativeToolbar: string
 		/**
+		 * O​n​l​y​ ​s​h​o​w​ ​P​o​p​k​i​t​ ​w​h​e​n​ ​s​e​l​e​c​t​i​n​g​ ​t​e​x​t​ ​w​i​t​h​ ​m​o​u​s​e
+		 */
+		mouseSelectionOnly: string
+		/**
 		 * N​o​ ​r​e​s​u​l​t​s​.
 		 */
 		noResult: string
@@ -496,6 +500,10 @@ export type TranslationFunctions = {
 		 * Disable the system toolbar when selecting text
 		 */
 		disableNativeToolbar: () => LocalizedString
+		/**
+		 * Only show Popkit when selecting text with mouse
+		 */
+		mouseSelectionOnly: () => LocalizedString
 		/**
 		 * No results.
 		 */

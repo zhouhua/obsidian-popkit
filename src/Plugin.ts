@@ -14,7 +14,7 @@ export default class PopkitPlugin extends Plugin {
   settings: ISetting;
   async onload() {
     await this.loadSettings();
-    this.registerEditorExtension([popoverPlugin(this.settings, this.app)]);
+    this.registerEditorExtension([popoverPlugin(this)]);
     this.registerDomEvent(
       document.body,
       'contextmenu',
@@ -101,6 +101,20 @@ class PopkitSetting extends PluginSettingTab {
             });
         });
     }
+
+    new Setting(containerEl)
+      .setName(L.setting.mouseSelectionOnly())
+      .addToggle(toggle => {
+        toggle
+          .setValue(this.plugin.settings.mouseSelectionOnly)
+          .onChange(value => {
+            this.update({
+              ...this.plugin.settings,
+              mouseSelectionOnly: value,
+            });
+          });
+      });
+
     const rootEl = containerEl.createDiv();
     this.root = renderSetting(
       rootEl,

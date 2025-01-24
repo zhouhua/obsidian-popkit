@@ -68,6 +68,7 @@ export type PopoverItem =
 export interface ISetting {
   refreshKey: number;
   disableNativeToolbar: boolean;
+  mouseSelectionOnly: boolean;
   actionList: PopoverItem[];
   customActionList: Action[];
 }

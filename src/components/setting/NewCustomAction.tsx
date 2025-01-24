@@ -1,5 +1,5 @@
 import { CheckIcon, icons } from 'lucide-react';
-import type { App, Command, InternalPlugin, InternalPluginInstance, Plugin } from 'obsidian';
+import type { App, Command, Plugin } from 'obsidian';
 import { Notice } from 'obsidian';
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -8,7 +8,7 @@ import type { OrderItemProps } from 'src/utils';
 import { fileToBase64, orderList } from 'src/utils';
 import startCase from 'lodash/startCase';
 import type { Action } from 'src/types';
-import type { InternalPluginName } from 'obsidian-typings';
+import type { InternalPluginName, InternalPlugin, InternalPluginInstance } from 'obsidian-typings';
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem } from '../ui/combobox';
 import { useDebounce } from 'ahooks';
 
@@ -29,7 +29,7 @@ const NewCustomAction: FC<{
 
   interface PluginInfo {
     pluginName: string;
-    plugin?: Plugin | InternalPlugin<{ name: string; } & InternalPluginInstance>;
+    plugin?: Plugin | InternalPlugin<{ name: string; } & InternalPluginInstance<object>>;
     isEnabled: boolean;
     commands: Command[];
   }

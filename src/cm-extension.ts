@@ -1,13 +1,37 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 import type { EditorView, ViewUpdate } from '@codemirror/view';
 import { ViewPlugin } from '@codemirror/view';
-import type { ISetting } from './types';
+import type { Editor, EditorPosition } from 'obsidian';
+import type PopkitPlugin from './Plugin';
 import PopoverManager, { clearPopover } from './render';
-import type { Editor, App, EditorPosition } from 'obsidian';
 
-export function popoverPlugin(settings: ISetting, app: App) {
+export function popoverPlugin(plugin: PopkitPlugin) {
   return ViewPlugin.fromClass(class {
-    constructor(private view: EditorView) {}
+    private isMouseSelection: boolean = false;
+    private mouseDown: boolean = false;
+
+    constructor(private view: EditorView) {
+      // 监听鼠标事件
+      this.view.dom.addEventListener('mousedown', () => {
+        this.mouseDown = true;
+      });
+
+      this.view.dom.addEventListener('mousemove', () => {
+        if (this.mouseDown) {
+          this.isMouseSelection = true;
+        }
+      });
+
+      this.view.dom.addEventListener('mouseup', () => {
+        this.mouseDown = false;
+      });
+
+      // 监听键盘事件，重置鼠标选择状态
+      this.view.dom.addEventListener('keydown', () => {
+        this.isMouseSelection = false;
+        this.mouseDown = false;
+      });
+    }
 
     createEditor(selectedText: string, selection: { from: number; to: number; }): Editor {
       const offsetToPos = (offset: number): EditorPosition => {
@@ -61,13 +85,17 @@ export function popoverPlugin(settings: ISetting, app: App) {
       if (hasSelectionChange) {
         const selection = this.view.state.selection.main;
         const selectedText = selection.empty ? '' : this.view.state.sliceDoc(selection.from, selection.to);
-        // 如果有选中内容
-        if (selectedText) {
+        // 如果有选中内容，并且满足鼠标选择的要求
+        if (selectedText && (!plugin.settings.mouseSelectionOnly || this.isMouseSelection)) {
           const editor = this.createEditor(selectedText, selection);
-          new PopoverManager(editor, app, settings);
+          new PopoverManager(editor, plugin.app, plugin.settings);
         }
         else {
           clearPopover();
+        }
+        // 如果是键盘选择，重置鼠标选择状态
+        if (!this.isMouseSelection) {
+          this.mouseDown = false;
         }
       }
     };

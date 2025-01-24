@@ -64,6 +64,7 @@ const zh: Translation = {
     disableNativeToolbar: '禁用选中文本时的系统工具条',
     noResult: '没有找到结果',
     pickItem: '请选择……',
+    mouseSelectionOnly: '仅在鼠标选择时显示 Popkit',
   },
 };
 

@@ -16,6 +16,7 @@ export function changeAction(action: Action, type: 'normal' | 'setting', selecti
     try {
       newAction.name = action.name({ selection });
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     catch (e) {
       newAction.name = '';
     }
@@ -24,6 +25,7 @@ export function changeAction(action: Action, type: 'normal' | 'setting', selecti
     try {
       newAction.icon = action.icon({ selection });
     }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     catch (e) {
       newAction.icon = '';
     }
@@ -41,6 +43,7 @@ export async function fileToBase64(file: Blob): Promise<string> {
     });
 
     reader.onerror = error => {
+      // eslint-disable-next-line @typescript-eslint/prefer-promise-reject-errors
       reject(error);
     };
   });
@@ -134,7 +137,7 @@ function fuzzy(input: string, pattern: string): FuzzyResult {
 
   let inputIndex = 0;
   let patternIndex = 0;
-  const marks: boolean[] = new Array(input.length).fill(false);
+  const marks: boolean[] = new Array<boolean>(input.length).fill(false);
 
   // 匹配过程
   while (inputIndex < input.length && patternIndex < pattern.length) {
