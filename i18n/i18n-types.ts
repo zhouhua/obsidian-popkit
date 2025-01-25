@@ -261,6 +261,46 @@ type RootTranslation = {
 		 * P​l​e​a​s​e​ ​p​i​c​k​ ​a​n​ ​i​t​e​m​.​.​.
 		 */
 		pickItem: string
+		/**
+		 * A​c​t​i​o​n​ ​T​y​p​e
+		 */
+		actionType: string
+		/**
+		 * C​h​o​o​s​e​ ​h​o​w​ ​t​h​e​ ​a​c​t​i​o​n​ ​w​i​l​l​ ​b​e​ ​e​x​e​c​u​t​e​d
+		 */
+		actionTypeDesc: string
+		/**
+		 * C​o​m​m​a​n​d
+		 */
+		commandType: string
+		/**
+		 * E​x​e​c​u​t​e​ ​a​n​ ​O​b​s​i​d​i​a​n​ ​c​o​m​m​a​n​d
+		 */
+		commandTypeDesc: string
+		/**
+		 * H​o​t​k​e​y
+		 */
+		hotkeyType: string
+		/**
+		 * T​r​i​g​g​e​r​ ​a​ ​k​e​y​b​o​a​r​d​ ​s​h​o​r​t​c​u​t
+		 */
+		hotkeyTypeDesc: string
+		/**
+		 * C​u​s​t​o​m​ ​C​o​d​e
+		 */
+		handlerType: string
+		/**
+		 * E​x​e​c​u​t​e​ ​c​u​s​t​o​m​ ​J​a​v​a​S​c​r​i​p​t​ ​c​o​d​e
+		 */
+		handlerTypeDesc: string
+		/**
+		 * H​o​t​k​e​y​ ​A​c​t​i​o​n
+		 */
+		hotkeyAction: string
+		/**
+		 * C​u​s​t​o​m​ ​C​o​d​e​ ​A​c​t​i​o​n
+		 */
+		customHandler: string
 	}
 }
 
@@ -512,6 +552,46 @@ export type TranslationFunctions = {
 		 * Please pick an item...
 		 */
 		pickItem: () => LocalizedString
+		/**
+		 * Action Type
+		 */
+		actionType: () => LocalizedString
+		/**
+		 * Choose how the action will be executed
+		 */
+		actionTypeDesc: () => LocalizedString
+		/**
+		 * Command
+		 */
+		commandType: () => LocalizedString
+		/**
+		 * Execute an Obsidian command
+		 */
+		commandTypeDesc: () => LocalizedString
+		/**
+		 * Hotkey
+		 */
+		hotkeyType: () => LocalizedString
+		/**
+		 * Trigger a keyboard shortcut
+		 */
+		hotkeyTypeDesc: () => LocalizedString
+		/**
+		 * Custom Code
+		 */
+		handlerType: () => LocalizedString
+		/**
+		 * Execute custom JavaScript code
+		 */
+		handlerTypeDesc: () => LocalizedString
+		/**
+		 * Hotkey Action
+		 */
+		hotkeyAction: () => LocalizedString
+		/**
+		 * Custom Code Action
+		 */
+		customHandler: () => LocalizedString
 	}
 }
 

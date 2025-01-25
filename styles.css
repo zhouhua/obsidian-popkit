@@ -111,8 +111,16 @@
   justify-content: center;
 }
 
+.pk-gap-1 {
+  gap: 0.25rem;
+}
+
 .pk-gap-2 {
   gap: 0.5rem;
+}
+
+.pk-gap-4 {
+  gap: 1rem;
 }
 
 .pk-overflow-y-auto {
@@ -389,7 +397,6 @@
 .popkit-setting-form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
   padding: 20px;
   border-radius: 6px;
   border: 1px solid var(--background-modifier-border);

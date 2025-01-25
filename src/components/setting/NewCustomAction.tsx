@@ -1,27 +1,36 @@
-import { CheckIcon, icons } from 'lucide-react';
 import type { App, Command, Plugin } from 'obsidian';
 import { Notice } from 'obsidian';
 import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import L from 'src/L';
 import type { OrderItemProps } from 'src/utils';
 import { fileToBase64, orderList } from 'src/utils';
-import startCase from 'lodash/startCase';
 import type { Action } from 'src/types';
 import type { InternalPluginName, InternalPlugin, InternalPluginInstance } from 'obsidian-typings';
-import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem } from '../ui/combobox';
 import { useDebounce } from 'ahooks';
+import CommandForm from './action-types/command';
+import HotkeysForm from './action-types/hotkeys';
+import IconForm from './action-types/icon';
+import HandlerForm from './action-types/handler';
+import { icons } from 'lucide-react';
+import startCase from 'lodash/startCase';
+
+type ActionType = 'command' | 'hotkeys' | 'handlerString';
 
 const NewCustomAction: FC<{
   app: App;
   onChange: (action: Action) => void;
 }> = ({ app, onChange }) => {
+  const [actionType, setActionType] = useState<ActionType>('command');
   const [icon, setIcon] = useState<string>('');
   const [plugin, setPlugin] = useState<string>('');
   const [cmd, setCmd] = useState<string>('');
   const [iconInput, setIconInput] = useState<string>('');
   const [pluginInput, setPluginInput] = useState<string>('');
   const [cmdInput, setCmdInput] = useState<string>('');
+  const [hotkey, setHotkey] = useState<string>('');
+  const [handlerString, setHandlerString] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const inputReference = useRef<HTMLInputElement>(null);
   const iconInputDebounce = useDebounce<string>(iconInput, { wait: 400 });
   const pluginInputDebounce = useDebounce<string>(pluginInput, { wait: 400 });
@@ -66,8 +75,6 @@ const NewCustomAction: FC<{
     }
   });
 
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const Icon = useMemo(() => (icon in icons ? icons[icon as keyof typeof icons] : undefined), [icon]);
   useEffect(() => {
     if (!plugin) {
       setPlugin(info[0]?.pluginName);
@@ -93,24 +100,21 @@ const NewCustomAction: FC<{
     if (plugin && cmd) {
       let { icon: cmdIcon } = commands[cmd];
       if (cmdIcon?.startsWith('lucide-')) {
-        cmdIcon = startCase(cmdIcon.replace(/^lucide-/, '')).replace(/\s/g, '');
-        if (!(cmdIcon in icons)) {
-          cmdIcon = '';
-        }
-      }
-      else {
-        cmdIcon = '';
+        cmdIcon = cmdIcon.replace(/^lucide-/, '').replace(/\s/g, '');
       }
       if (cmdIcon) {
-        setIcon(cmdIcon);
-        setIconInput(cmdIcon);
+        cmdIcon = startCase(cmdIcon).replace(/\s/g, '');
+        if (cmdIcon in icons) {
+          setIcon(cmdIcon);
+          setIconInput(cmdIcon);
+        }
       }
     }
-    else {
+    else if (actionType !== 'command') {
       setIcon('');
       setIconInput('');
     }
-  }, [commands, plugin, cmd]);
+  }, [commands, plugin, cmd, actionType]);
 
   const orderedCmdList = useMemo<OrderItemProps<Command>[]>(() => {
     return orderList<Command>(
@@ -132,21 +136,6 @@ const NewCustomAction: FC<{
     );
   }, [info, pluginInputDebounce]);
 
-  const add = useCallback(() => {
-    if (!plugin || !cmd || !icon) {
-      return;
-    }
-    const commad = commands[cmd];
-    onChange({
-      icon,
-      dependencies: [plugin],
-      command: cmd,
-      name: commad.name,
-      desc: commad.name,
-    });
-    new Notice(L.setting.addSuccess());
-  }, [plugin, cmd, icon, onChange]);
-
   const upload = async () => {
     const file = inputReference.current?.files?.[0];
     if (file) {
@@ -154,190 +143,179 @@ const NewCustomAction: FC<{
     }
   };
 
+  const add = useCallback(() => {
+    if (!icon) {
+      new Notice('请选择图标');
+      return;
+    }
+
+    let action: Action;
+    const baseAction = {
+      icon,
+      name: '',
+      desc: description || '',
+    };
+
+    switch (actionType) {
+      case 'command':
+        if (!plugin || !cmd) {
+          new Notice('请选择命令');
+          return;
+        }
+        action = {
+          ...baseAction,
+          name: commands[cmd].name,
+          desc: description || commands[cmd].name,
+          dependencies: [plugin],
+          command: cmd,
+        };
+        break;
+      case 'hotkeys':
+        if (!hotkey) {
+          new Notice('请设置快捷键');
+          return;
+        }
+        if (!description) {
+          new Notice('请输入描述');
+          return;
+        }
+        action = {
+          ...baseAction,
+          name: description,
+          hotkeys: [hotkey],
+        };
+        break;
+      case 'handlerString':
+        if (!handlerString) {
+          new Notice('请输入处理函数');
+          return;
+        }
+        if (!description) {
+          new Notice('请输入描述');
+          return;
+        }
+        action = {
+          ...baseAction,
+          name: description,
+          handlerString,
+        };
+        break;
+    }
+
+    onChange(action);
+    new Notice(L.setting.addSuccess());
+  }, [actionType, plugin, cmd, icon, hotkey, handlerString, description, onChange]);
+
   return (
     <div className="popkit-setting-form">
       <h3>{L.setting.customTitle()}</h3>
-      <div
-        className="setting-item"
-        style={{ padding: '10px 0' }}
-      >
-        <div className="setting-item-info">
-          <div className="setting-item-name">{L.setting.plugin()}</div>
-          <div className="setting-item-description">
-          </div>
-        </div>
-        <div className="setting-item-control">
-          <Combobox
-            value={plugin}
-            filterItems={(inputValue, list) => list}
-            onValueChange={value => {
-              setPlugin(value);
-              setPluginInput(value || '');
-            }}
-          >
-            <ComboboxInput
-              placeholder={L.setting.pickItem()}
-              value={pluginInput}
-              onChange={e => { setPluginInput(e.target.value); }}
-            />
-            <ComboboxContent>
-              {orderedPluginList.map(item => {
-                return (
-                  <ComboboxItem
-                    key={item.origin.pluginName}
-                    label={item.origin.pluginName}
-                    value={item.origin.pluginName}
-                  >
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: item.markString,
-                      }}
-                      className="pk-text-xs pk-pl-5"
-                    >
-                    </span>
-                    {plugin === item.origin.pluginName && (
-                      <span className="pk-absolute pk-start-2 pk-top-0 pk-flex pk-h-full pk-items-center pk-justify-center">
-                        <CheckIcon className="pk-size-4" />
-                      </span>
-                    )}
-                  </ComboboxItem>
-                );
-              })}
-              <ComboboxEmpty>{L.setting.noResult()}</ComboboxEmpty>
-            </ComboboxContent>
-          </Combobox>
-        </div>
-      </div>
-      <div
-        className="setting-item"
-        style={{ padding: '10px 0' }}
-      >
-        <div className="setting-item-info">
-          <div className="setting-item-name">{L.setting.command()}</div>
-          <div className="setting-item-description">
-          </div>
-        </div>
-        <div className="setting-item-control">
-          <Combobox
-            value={cmd}
-            filterItems={(inputValue, list) => list}
-            onValueChange={value => {
-              setCmd(value || '');
-              setCmdInput(value || '');
-            }}
-          >
-            <ComboboxInput
-              placeholder={L.setting.pickItem()}
-              value={cmdInput}
-              onChange={e => { setCmdInput(e.target.value); }}
-            />
-            <ComboboxContent>
-              {orderedCmdList.map(command => {
-                return (
-                  <ComboboxItem key={command.origin.id} label={command.origin.name} value={command.origin.id}>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: command.markString,
-                      }}
-                      className="pk-text-xs pk-pl-5"
-                    >
-                    </span>
-                    {cmd === command.origin.id && (
-                      <span className="pk-absolute pk-start-2 pk-top-0 pk-flex pk-h-full pk-items-center pk-justify-center">
-                        <CheckIcon className="pk-size-4" />
-                      </span>
-                    )}
-                  </ComboboxItem>
-                );
-              })}
-              <ComboboxEmpty>{L.setting.noResult()}</ComboboxEmpty>
-            </ComboboxContent>
-          </Combobox>
-        </div>
-      </div>
-      <div
-        className="setting-item"
-        style={{ padding: '10px 0' }}
-      >
-        <div className="setting-item-info">
-          <div className="setting-item-name">{L.setting.icon()}</div>
-          <div className="setting-item-description">
-          </div>
-        </div>
-        <div className="setting-item-control">
-          {icon && (Icon
-            ? (
-              <div className="popkit-setting-form-icon-container">
-                <Icon color="#fff" size={20} />
-              </div>
-            )
-            : (
-              <div className="popkit-setting-form-icon-container">
-                <img src={icon} width="20" height="20" />
-              </div>
-            )
-          )}
-          <button onClick={() => inputReference.current?.click()}>
-            {L.setting.upload()}
-            <input
-              ref={inputReference}
-              style={{ display: 'none' }}
-              type="file"
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises
-              onChange={upload}
-            />
-          </button>
-          <Combobox
-            value={icon}
-            filterItems={(inputValue, list) => list}
-            onValueChange={value => {
-              setIcon(value || '');
-              setIconInput(value || '');
-            }}
-          >
-            <ComboboxInput
-              placeholder={L.setting.pickItem()}
-              value={iconInput}
-              onChange={e => {
-                setIconInput(e.target.value);
-              }}
-            />
-            <ComboboxContent>
-              {orderedIconList.map(item => {
-                // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-                const OptionIcon = icons[item.origin as keyof typeof icons];
-                return (
-                  <ComboboxItem key={item.origin} label={item.origin} value={item.origin}>
-                    <div className="pk-pl-5 pk-flex pk-items-center pk-gap-2">
-                      <OptionIcon size={14} />
-                      <span
-                        dangerouslySetInnerHTML={{
-                          __html: item.markString,
-                        }}
-                        className="pk-text-xs"
-                      >
-                      </span>
-                    </div>
-                    {icon === item.origin && (
-                      <span className="pk-absolute pk-start-2 pk-top-0 pk-flex pk-h-full pk-items-center pk-justify-center">
-                        <CheckIcon className="pk-size-4" />
-                      </span>
-                    )}
-                  </ComboboxItem>
-                );
-              })}
-              <ComboboxEmpty>{L.setting.noResult()}</ComboboxEmpty>
-            </ComboboxContent>
-          </Combobox>
-        </div>
-      </div>
-      <div
-        className="setting-item"
-        style={{ padding: '10px 0' }}
-      >
-        <div className="setting-item-info">
 
+      {/* Action Type Selector */}
+      <div className="setting-item" style={{ padding: '10px 0' }}>
+        <div className="setting-item-info">
+          <div className="setting-item-name">Action Type</div>
+          <div className="setting-item-description">
+            Select the type of action you want to create
+          </div>
         </div>
+        <div className="setting-item-control">
+          <div className="pk-flex pk-gap-4">
+            <label className="pk-flex pk-items-center pk-gap-1">
+              <input
+                type="radio"
+                checked={actionType === 'command'}
+                onChange={() => { setActionType('command'); }}
+              />
+              Command
+            </label>
+            <label className="pk-flex pk-items-center pk-gap-1">
+              <input
+                type="radio"
+                checked={actionType === 'hotkeys'}
+                onChange={() => { setActionType('hotkeys'); }}
+              />
+              Hotkeys
+            </label>
+            <label className="pk-flex pk-items-center pk-gap-1">
+              <input
+                type="radio"
+                checked={actionType === 'handlerString'}
+                onChange={() => { setActionType('handlerString'); }}
+              />
+              Handler
+            </label>
+          </div>
+        </div>
+      </div>
+
+      {/* Command Type Fields */}
+      {actionType === 'command' && (
+        <CommandForm
+          app={app}
+          plugin={plugin}
+          cmd={cmd}
+          pluginInput={pluginInput}
+          cmdInput={cmdInput}
+          orderedPluginList={orderedPluginList}
+          orderedCmdList={orderedCmdList}
+          setPlugin={setPlugin}
+          setPluginInput={setPluginInput}
+          setCmd={setCmd}
+          setCmdInput={setCmdInput}
+        />
+      )}
+
+      {/* Description Field - 只在 hotkeys 和 handlerString 类型时显示 */}
+      {(actionType === 'hotkeys' || actionType === 'handlerString') && (
+        <div className="setting-item" style={{ padding: '10px 0' }}>
+          <div className="setting-item-info">
+            <div className="setting-item-name">Description</div>
+            <div className="setting-item-description">
+              Enter a description for this action
+            </div>
+          </div>
+          <div className="setting-item-control">
+            <input
+              type="text"
+              className="setting-hotkey-input"
+              value={description}
+              placeholder="Enter description"
+              onChange={e => { setDescription(e.target.value); }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Hotkeys Type Fields */}
+      {actionType === 'hotkeys' && (
+        <HotkeysForm
+          hotkey={hotkey}
+          onChange={setHotkey}
+        />
+      )}
+
+      {/* Handler Type Fields */}
+      {actionType === 'handlerString' && (
+        <HandlerForm
+          value={handlerString}
+          onChange={setHandlerString}
+        />
+      )}
+
+      {/* Icon Selector - Always visible */}
+      <IconForm
+        icon={icon}
+        iconInput={iconInput}
+        orderedIconList={orderedIconList}
+        setIcon={setIcon}
+        setIconInput={setIconInput}
+        inputReference={inputReference}
+        onUpload={upload}
+      />
+
+      {/* Add Button */}
+      <div className="setting-item" style={{ padding: '10px 0' }}>
+        <div className="setting-item-info"></div>
         <div className="setting-item-control">
           <button onClick={add}>{L.setting.add()}</button>
         </div>
