@@ -1,5 +1,6 @@
+/* eslint-disable @stylistic/indent */
 import type { FC } from 'react';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { X, PlusCircle } from 'lucide-react';
 
 interface HotkeysFormProps {
@@ -15,79 +16,89 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
   const [currentHotkey, setCurrentHotkey] = useState('');
   const keysPressed = useRef<Set<string>>(new Set());
 
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const generateHotkeyString = useCallback((keys: string[]) => {
+    const modifiers: string[] = [];
+    const mainKeys: string[] = [];
 
-    keysPressed.current.add(e.key);
-    updateHotkey();
-  }, []);
+    // 先处理修饰键，按固定顺序
+    if (keys.includes('Meta')) modifiers.push('⌘');
+    if (keys.includes('Control')) modifiers.push('Ctrl');
+    if (keys.includes('Alt')) modifiers.push('⌥');
+    if (keys.includes('Shift')) modifiers.push('⇧');
 
-  const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    keysPressed.current.delete(e.key);
-
-    // 当所有按键都释放时，结束录制
-    if (keysPressed.current.size === 0 && currentHotkey) {
-      onChange(currentHotkey);
-      stopRecording();
+    // 处理其他键
+    for (const key of keys) {
+      if (!['Meta', 'Control', 'Alt', 'Shift'].includes(key)) {
+        mainKeys.push(key.length === 1 ? key.toUpperCase() : key);
+      }
     }
-  }, [currentHotkey, onChange]);
 
-  const stopRecording = useCallback(() => {
-    setRecording(false);
-    document.removeEventListener('keydown', handleKeyDown);
-    document.removeEventListener('keyup', handleKeyUp);
-    keysPressed.current.clear();
-  }, [handleKeyDown, handleKeyUp]);
+    return [...modifiers, ...mainKeys].join(' ');
+  }, []);
 
   const updateHotkey = useCallback(() => {
-    const keys: string[] = [];
-    keysPressed.current.forEach(key => {
-      switch (key) {
-        case 'Meta':
-          keys.push('⌘');
-          break;
-        case 'Control':
-          keys.push('Ctrl');
-          break;
-        case 'Alt':
-          keys.push('⌥');
-          break;
-        case 'Shift':
-          keys.push('⇧');
-          break;
-        default:
-          keys.push(key.length === 1 ? key.toUpperCase() : key);
-      }
-    });
-
-    if (keys.length > 0) {
-      const newHotkey = keys.join(' ');
+    const keys = Array.from(keysPressed.current);
+    const newHotkey = generateHotkeyString(keys);
+    if (newHotkey) {
       setCurrentHotkey(newHotkey);
     }
-  }, []);
+  }, [generateHotkeyString]);
+
+  useEffect(() => {
+    if (!recording) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      keysPressed.current.add(e.key);
+      updateHotkey();
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // 在第一个按键释放时结束录制
+      const finalHotkey = generateHotkeyString(Array.from(keysPressed.current));
+      if (finalHotkey) {
+        onChange(finalHotkey);
+      }
+
+      setRecording(false);
+      keysPressed.current.clear();
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keyup', handleKeyUp);
+      keysPressed.current.clear();
+    };
+  }, [recording, onChange, updateHotkey, generateHotkeyString]);
 
   const startRecording = useCallback(() => {
     setRecording(true);
     setCurrentHotkey('');
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
-  }, [handleKeyDown, handleKeyUp]);
+    keysPressed.current.clear();
+  }, []);
 
   const cancelRecording = useCallback(() => {
-    stopRecording();
+    setRecording(false);
     setCurrentHotkey('');
-  }, [stopRecording]);
+    keysPressed.current.clear();
+  }, []);
 
   return (
     <div className="setting-item" style={{ padding: '10px 0' }}>
       <div className="setting-item-info">
-        <div className="setting-item-name">Hotkey</div>
+        <div className="setting-item-name">{L.setting.hotkeysLabel()}</div>
         <div className="setting-item-description">
-          Press the combination of keys you want to use
+          {L.setting.hotkeysDesc()}
         </div>
       </div>
       <div className="setting-item-control">
@@ -104,7 +115,7 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
                   {hotkey}
                   <span
                     className="setting-hotkey-icon setting-delete-hotkey"
-                    aria-label="删除快捷键"
+                    aria-label={L.setting.deleteHotkey()}
                     onClick={() => { onChange(''); }}
                   >
                     <X className="svg-icon" />
@@ -113,14 +124,14 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
               )
               : (
                 <span className="setting-hotkey mod-empty">
-                  未设置
+                  {L.setting.notSet()}
                 </span>
               )}
         </div>
         {!recording && !hotkey && (
           <span
             className="clickable-icon setting-add-hotkey-button"
-            aria-label="自定义快捷键"
+            aria-label={L.setting.customHotkey()}
             onClick={startRecording}
           >
             <PlusCircle className="svg-icon" />
@@ -129,7 +140,7 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
         {recording && (
           <span
             className="clickable-icon setting-add-hotkey-button"
-            aria-label="取消设置"
+            aria-label={L.setting.cancelSetting()}
             onClick={cancelRecording}
           >
             <X className="svg-icon" />

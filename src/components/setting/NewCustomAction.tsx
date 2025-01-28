@@ -5,17 +5,16 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import L from 'src/L';
 import type { OrderItemProps } from 'src/utils';
 import { fileToBase64, orderList } from 'src/utils';
-import type { Action } from 'src/types';
-import type { InternalPluginName, InternalPlugin, InternalPluginInstance } from 'obsidian-typings';
+import type { Action, IActionWithCommand, IActionWithHotkeys } from 'src/types';
+import type { InternalPlugin } from 'obsidian-typings';
 import { useDebounce } from 'ahooks';
 import CommandForm from './action-types/command';
 import HotkeysForm from './action-types/hotkeys';
 import IconForm from './action-types/icon';
-import HandlerForm from './action-types/handler';
 import { icons } from 'lucide-react';
 import startCase from 'lodash/startCase';
 
-type ActionType = 'command' | 'hotkeys' | 'handlerString';
+type ActionType = 'command' | 'hotkeys';
 
 const NewCustomAction: FC<{
   app: App;
@@ -29,7 +28,6 @@ const NewCustomAction: FC<{
   const [pluginInput, setPluginInput] = useState<string>('');
   const [cmdInput, setCmdInput] = useState<string>('');
   const [hotkey, setHotkey] = useState<string>('');
-  const [handlerString, setHandlerString] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const inputReference = useRef<HTMLInputElement>(null);
   const iconInputDebounce = useDebounce<string>(iconInput, { wait: 400 });
@@ -38,7 +36,7 @@ const NewCustomAction: FC<{
 
   interface PluginInfo {
     pluginName: string;
-    plugin?: Plugin | InternalPlugin<{ name: string; } & InternalPluginInstance<object>>;
+    plugin?: Plugin | InternalPlugin<object>;
     isEnabled: boolean;
     commands: Command[];
   }
@@ -55,15 +53,17 @@ const NewCustomAction: FC<{
         cache.commands.push(commands[key]);
       }
       else {
-        const pluginInfo: Plugin | InternalPlugin | undefined = pluginId in plugins
+        const pluginInfo = pluginId in plugins
           ? plugins[pluginId]
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          : (pluginId in internalPlugins ? internalPlugins[pluginId as InternalPluginName] : undefined);
-
+          : pluginId in internalPlugins
+            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+            ? (internalPlugins as Record<string, InternalPlugin<object>>)[pluginId]
+            : undefined;
         const isEnabled = app.plugins.enabledPlugins.has(pluginId)
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          || !!internalPluginConfig[pluginId as InternalPluginName];
-        if (pluginId && (!isEnabled === !pluginInfo)) {
+          || Boolean((internalPluginConfig as Record<string, boolean>)[pluginId]);
+
+        if (pluginId && isEnabled === Boolean(pluginInfo)) {
           info.push({
             pluginName: pluginId,
             plugin: pluginInfo,
@@ -77,8 +77,8 @@ const NewCustomAction: FC<{
 
   useEffect(() => {
     if (!plugin) {
-      setPlugin(info[0]?.pluginName);
-      setPluginInput(info[0]?.pluginName);
+      setPlugin(info[0]?.pluginName ?? '');
+      setPluginInput(info[0]?.pluginName ?? '');
     }
   }, [info.length, plugin]);
 
@@ -98,7 +98,7 @@ const NewCustomAction: FC<{
 
   useEffect(() => {
     if (plugin && cmd) {
-      let { icon: cmdIcon } = commands[cmd];
+      let { icon: cmdIcon } = commands[cmd] ?? {};
       if (cmdIcon?.startsWith('lucide-')) {
         cmdIcon = cmdIcon.replace(/^lucide-/, '').replace(/\s/g, '');
       }
@@ -118,9 +118,9 @@ const NewCustomAction: FC<{
 
   const orderedCmdList = useMemo<OrderItemProps<Command>[]>(() => {
     return orderList<Command>(
-      info.find(i => i.pluginName === plugin)?.commands || [],
+      info.find(i => i.pluginName === plugin)?.commands ?? [],
       cmdInputDebounce,
-      item => item.name,
+      (item: Command) => `${item.name}(${item.id})`,
     );
   }, [info, plugin, cmdInputDebounce]);
 
@@ -136,20 +136,21 @@ const NewCustomAction: FC<{
     );
   }, [info, pluginInputDebounce]);
 
-  const upload = async () => {
+  const upload = useCallback(async () => {
     const file = inputReference.current?.files?.[0];
     if (file) {
-      setIcon(await fileToBase64(file));
+      const base64 = await fileToBase64(file);
+      setIcon(base64);
     }
-  };
+  }, []);
 
   const add = useCallback(() => {
     if (!icon) {
-      new Notice('请选择图标');
+      new Notice(L.setting.iconNotice());
       return;
     }
 
-    let action: Action;
+    let action: IActionWithCommand | IActionWithHotkeys;
     const baseAction = {
       icon,
       name: '',
@@ -157,26 +158,33 @@ const NewCustomAction: FC<{
     };
 
     switch (actionType) {
-      case 'command':
+      case 'command': {
         if (!plugin || !cmd) {
-          new Notice('请选择命令');
+          new Notice(L.setting.commandNotice());
+          return;
+        }
+        const command = commands[cmd];
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (!command) {
+          new Notice(L.setting.invalidCommand());
           return;
         }
         action = {
           ...baseAction,
-          name: commands[cmd].name,
-          desc: description || commands[cmd].name,
+          name: command.name,
+          desc: description || command.name,
           dependencies: [plugin],
           command: cmd,
         };
         break;
-      case 'hotkeys':
+      }
+      case 'hotkeys': {
         if (!hotkey) {
-          new Notice('请设置快捷键');
+          new Notice(L.setting.hotkeysNotice());
           return;
         }
         if (!description) {
-          new Notice('请输入描述');
+          new Notice(L.setting.descriptionNotice());
           return;
         }
         action = {
@@ -185,26 +193,12 @@ const NewCustomAction: FC<{
           hotkeys: [hotkey],
         };
         break;
-      case 'handlerString':
-        if (!handlerString) {
-          new Notice('请输入处理函数');
-          return;
-        }
-        if (!description) {
-          new Notice('请输入描述');
-          return;
-        }
-        action = {
-          ...baseAction,
-          name: description,
-          handlerString,
-        };
-        break;
+      }
     }
 
     onChange(action);
     new Notice(L.setting.addSuccess());
-  }, [actionType, plugin, cmd, icon, hotkey, handlerString, description, onChange]);
+  }, [actionType, plugin, cmd, commands, icon, hotkey, description, onChange]);
 
   return (
     <div className="popkit-setting-form">
@@ -213,9 +207,9 @@ const NewCustomAction: FC<{
       {/* Action Type Selector */}
       <div className="setting-item" style={{ padding: '10px 0' }}>
         <div className="setting-item-info">
-          <div className="setting-item-name">Action Type</div>
+          <div className="setting-item-name">{L.setting.actionType()}</div>
           <div className="setting-item-description">
-            Select the type of action you want to create
+            {L.setting.actionTypeDesc()}
           </div>
         </div>
         <div className="setting-item-control">
@@ -226,7 +220,7 @@ const NewCustomAction: FC<{
                 checked={actionType === 'command'}
                 onChange={() => { setActionType('command'); }}
               />
-              Command
+              {L.setting.commandLabel()}
             </label>
             <label className="pk-flex pk-items-center pk-gap-1">
               <input
@@ -234,15 +228,7 @@ const NewCustomAction: FC<{
                 checked={actionType === 'hotkeys'}
                 onChange={() => { setActionType('hotkeys'); }}
               />
-              Hotkeys
-            </label>
-            <label className="pk-flex pk-items-center pk-gap-1">
-              <input
-                type="radio"
-                checked={actionType === 'handlerString'}
-                onChange={() => { setActionType('handlerString'); }}
-              />
-              Handler
+              {L.setting.hotkeysLabel()}
             </label>
           </div>
         </div>
@@ -265,13 +251,13 @@ const NewCustomAction: FC<{
         />
       )}
 
-      {/* Description Field - 只在 hotkeys 和 handlerString 类型时显示 */}
-      {(actionType === 'hotkeys' || actionType === 'handlerString') && (
+      {/* Description Field - 只在 hotkeys 类型时显示 */}
+      {actionType === 'hotkeys' && (
         <div className="setting-item" style={{ padding: '10px 0' }}>
           <div className="setting-item-info">
-            <div className="setting-item-name">Description</div>
+            <div className="setting-item-name">{L.setting.descriptionLabel()}</div>
             <div className="setting-item-description">
-              Enter a description for this action
+              {L.setting.descriptionDesc()}
             </div>
           </div>
           <div className="setting-item-control">
@@ -279,7 +265,7 @@ const NewCustomAction: FC<{
               type="text"
               className="setting-hotkey-input"
               value={description}
-              placeholder="Enter description"
+              placeholder={L.setting.descriptionPlaceholder()}
               onChange={e => { setDescription(e.target.value); }}
             />
           </div>
@@ -291,14 +277,6 @@ const NewCustomAction: FC<{
         <HotkeysForm
           hotkey={hotkey}
           onChange={setHotkey}
-        />
-      )}
-
-      {/* Handler Type Fields */}
-      {actionType === 'handlerString' && (
-        <HandlerForm
-          value={handlerString}
-          onChange={setHandlerString}
         />
       )}
 

@@ -10,8 +10,8 @@ interface IconFormProps {
   orderedIconList: OrderItemProps<string>[];
   setIcon: (value: string) => void;
   setIconInput: (value: string) => void;
-  onUpload: () => void;
-  inputReference: React.RefObject<HTMLInputElement>;
+  onUpload: () => Promise<void>;
+  inputReference: React.RefObject<HTMLInputElement | null>;
 }
 
 const IconForm: FC<IconFormProps> = ({
@@ -25,31 +25,25 @@ const IconForm: FC<IconFormProps> = ({
 }) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const Icon = icon in icons ? icons[icon as keyof typeof icons] : undefined;
-  console.log(Icon);
   return (
     <div className="setting-item" style={{ padding: '10px 0' }}>
       <div className="setting-item-info">
         <div className="setting-item-name">{L.setting.icon()}</div>
       </div>
       <div className="setting-item-control">
-        {icon && (Icon
-          ? (
-            <div className="popkit-setting-form-icon-container">
-              <Icon color="#fff" size={20} />
-            </div>
-          )
-          : (
-            <div className="popkit-setting-form-icon-container">
-              <img src={icon} width="20" height="20" />
-            </div>
-          )
+        {icon && (
+          <div className="popkit-setting-form-icon-container">
+            {Icon && <Icon color="#fff" size={20} />}
+            {!Icon && <img src={icon} width="20" height="20" />}
+          </div>
         )}
-        <button onClick={() => { inputReference.current.click(); }}>
+        <button onClick={() => { inputReference.current?.click(); }}>
           {L.setting.upload()}
           <input
             ref={inputReference}
             style={{ display: 'none' }}
             type="file"
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             onChange={onUpload}
           />
         </button>

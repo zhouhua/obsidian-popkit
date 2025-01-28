@@ -262,45 +262,73 @@ type RootTranslation = {
 		 */
 		pickItem: string
 		/**
-		 * A​c​t​i​o​n​ ​T​y​p​e
+		 * C​u​s​t​o​m​ ​a​c​t​i​o​n​ ​t​y​p​e
 		 */
 		actionType: string
 		/**
-		 * C​h​o​o​s​e​ ​h​o​w​ ​t​h​e​ ​a​c​t​i​o​n​ ​w​i​l​l​ ​b​e​ ​e​x​e​c​u​t​e​d
+		 * S​e​l​e​c​t​ ​t​h​e​ ​t​y​p​e​ ​o​f​ ​a​c​t​i​o​n​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​c​r​e​a​t​e
 		 */
 		actionTypeDesc: string
 		/**
 		 * C​o​m​m​a​n​d
 		 */
-		commandType: string
+		commandLabel: string
 		/**
-		 * E​x​e​c​u​t​e​ ​a​n​ ​O​b​s​i​d​i​a​n​ ​c​o​m​m​a​n​d
+		 * H​o​t​k​e​y​s
 		 */
-		commandTypeDesc: string
+		hotkeysLabel: string
 		/**
-		 * H​o​t​k​e​y
+		 * D​e​s​c​r​i​p​t​i​o​n
 		 */
-		hotkeyType: string
+		descriptionLabel: string
 		/**
-		 * T​r​i​g​g​e​r​ ​a​ ​k​e​y​b​o​a​r​d​ ​s​h​o​r​t​c​u​t
+		 * E​n​t​e​r​ ​a​ ​d​e​s​c​r​i​p​t​i​o​n​ ​f​o​r​ ​t​h​i​s​ ​a​c​t​i​o​n​,​ ​i​t​ ​w​i​l​l​ ​b​e​ ​d​i​s​p​l​a​y​e​d​ ​w​h​e​n​ ​h​o​v​e​r​i​n​g​ ​o​v​e​r​ ​t​h​e​ ​m​o​u​s​e
 		 */
-		hotkeyTypeDesc: string
+		descriptionDesc: string
 		/**
-		 * C​u​s​t​o​m​ ​C​o​d​e
+		 * E​n​t​e​r​ ​d​e​s​c​r​i​p​t​i​o​n
 		 */
-		handlerType: string
+		descriptionPlaceholder: string
 		/**
-		 * E​x​e​c​u​t​e​ ​c​u​s​t​o​m​ ​J​a​v​a​S​c​r​i​p​t​ ​c​o​d​e
+		 * P​l​e​a​s​e​ ​s​e​l​e​c​t​ ​a​n​ ​i​c​o​n
 		 */
-		handlerTypeDesc: string
+		iconNotice: string
 		/**
-		 * H​o​t​k​e​y​ ​A​c​t​i​o​n
+		 * P​l​e​a​s​e​ ​s​e​l​e​c​t​ ​a​ ​c​o​m​m​a​n​d
 		 */
-		hotkeyAction: string
+		commandNotice: string
 		/**
-		 * C​u​s​t​o​m​ ​C​o​d​e​ ​A​c​t​i​o​n
+		 * I​n​v​a​l​i​d​ ​c​o​m​m​a​n​d
 		 */
-		customHandler: string
+		invalidCommand: string
+		/**
+		 * P​l​e​a​s​e​ ​s​e​t​ ​h​o​t​k​e​y​s
+		 */
+		hotkeysNotice: string
+		/**
+		 * P​l​e​a​s​e​ ​e​n​t​e​r​ ​a​ ​d​e​s​c​r​i​p​t​i​o​n
+		 */
+		descriptionNotice: string
+		/**
+		 * P​r​e​s​s​ ​t​h​e​ ​c​o​m​b​i​n​a​t​i​o​n​ ​o​f​ ​k​e​y​s​ ​y​o​u​ ​w​a​n​t​ ​t​o​ ​u​s​e
+		 */
+		hotkeysDesc: string
+		/**
+		 * D​e​l​e​t​e​ ​h​o​t​k​e​y
+		 */
+		deleteHotkey: string
+		/**
+		 * N​o​t​ ​s​e​t
+		 */
+		notSet: string
+		/**
+		 * C​u​s​t​o​m​ ​h​o​t​k​e​y
+		 */
+		customHotkey: string
+		/**
+		 * C​a​n​c​e​l​ ​s​e​t​t​i​n​g
+		 */
+		cancelSetting: string
 	}
 }
 
@@ -553,45 +581,73 @@ export type TranslationFunctions = {
 		 */
 		pickItem: () => LocalizedString
 		/**
-		 * Action Type
+		 * Custom action type
 		 */
 		actionType: () => LocalizedString
 		/**
-		 * Choose how the action will be executed
+		 * Select the type of action you want to create
 		 */
 		actionTypeDesc: () => LocalizedString
 		/**
 		 * Command
 		 */
-		commandType: () => LocalizedString
+		commandLabel: () => LocalizedString
 		/**
-		 * Execute an Obsidian command
+		 * Hotkeys
 		 */
-		commandTypeDesc: () => LocalizedString
+		hotkeysLabel: () => LocalizedString
 		/**
-		 * Hotkey
+		 * Description
 		 */
-		hotkeyType: () => LocalizedString
+		descriptionLabel: () => LocalizedString
 		/**
-		 * Trigger a keyboard shortcut
+		 * Enter a description for this action, it will be displayed when hovering over the mouse
 		 */
-		hotkeyTypeDesc: () => LocalizedString
+		descriptionDesc: () => LocalizedString
 		/**
-		 * Custom Code
+		 * Enter description
 		 */
-		handlerType: () => LocalizedString
+		descriptionPlaceholder: () => LocalizedString
 		/**
-		 * Execute custom JavaScript code
+		 * Please select an icon
 		 */
-		handlerTypeDesc: () => LocalizedString
+		iconNotice: () => LocalizedString
 		/**
-		 * Hotkey Action
+		 * Please select a command
 		 */
-		hotkeyAction: () => LocalizedString
+		commandNotice: () => LocalizedString
 		/**
-		 * Custom Code Action
+		 * Invalid command
 		 */
-		customHandler: () => LocalizedString
+		invalidCommand: () => LocalizedString
+		/**
+		 * Please set hotkeys
+		 */
+		hotkeysNotice: () => LocalizedString
+		/**
+		 * Please enter a description
+		 */
+		descriptionNotice: () => LocalizedString
+		/**
+		 * Press the combination of keys you want to use
+		 */
+		hotkeysDesc: () => LocalizedString
+		/**
+		 * Delete hotkey
+		 */
+		deleteHotkey: () => LocalizedString
+		/**
+		 * Not set
+		 */
+		notSet: () => LocalizedString
+		/**
+		 * Custom hotkey
+		 */
+		customHotkey: () => LocalizedString
+		/**
+		 * Cancel setting
+		 */
+		cancelSetting: () => LocalizedString
 	}
 }
 

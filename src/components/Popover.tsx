@@ -5,7 +5,7 @@ import type { PopoverItem } from 'src/types';
 import { ItemType } from 'src/types';
 import Item from './Item';
 import { changeAction } from 'src/utils';
-import type { InternalPluginName } from 'obsidian-typings';
+import type { InternalPluginNameType } from 'obsidian-typings';
 
 interface PopoverProps {
   editor?: Editor;
@@ -32,11 +32,12 @@ const Popover: FC<PopoverProps> = ({
 
   function calcPosition() {
     const pos = editor!.getCursor();
-    const coord = editor!.coordsAtPos(pos);
+    const coord = editor!.coordsAtPos(pos, true);
     let left = 0;
     let top = 0;
     const rect = out!.getBoundingClientRect();
 
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (!coord) {
       const cmContainer = editor!.cm.contentDOM;
       const outRect = cmContainer.getBoundingClientRect();
@@ -130,9 +131,10 @@ const Popover: FC<PopoverProps> = ({
             'theme',
             'window',
           ].includes(dep)
+            // eslint-disable-next-line @stylistic/indent-binary-ops
             || app.plugins.enabledPlugins.has(dep)
             // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-            || app.internalPlugins.getEnabledPluginById(dep as InternalPluginName);
+            || app.internalPlugins.getEnabledPluginById(dep as InternalPluginNameType);
         });
       }
       return valid;

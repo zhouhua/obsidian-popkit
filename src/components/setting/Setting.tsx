@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-assertions */
 import type { App } from 'obsidian';
 import type { FC, PropsWithChildren } from 'react';
 import { useCallback, useState } from 'react';

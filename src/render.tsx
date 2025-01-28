@@ -17,7 +17,6 @@ export default class PopoverManager {
     try {
       instanceList.forEach(instance => {
         if (instance.editor.containerEl !== editor.containerEl) {
-          console.log('initial destroy');
           instance.destroy();
         }
       });

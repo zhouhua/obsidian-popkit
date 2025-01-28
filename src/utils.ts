@@ -171,7 +171,7 @@ function fuzzy(input: string, pattern: string): FuzzyResult {
   };
 }
 
-export function orderList<T = string>(
+export function orderList<T>(
   list: T[],
   inputValue: string,
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions

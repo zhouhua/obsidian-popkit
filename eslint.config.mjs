@@ -111,7 +111,6 @@ export default tseslint.config({
         allowAllPropertiesOnSameLine: true,
       },
     ],
-
     '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/consistent-indexed-object-style': 'error',
