@@ -65,7 +65,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
       }
       else if (hasHandlerString(action)) {
         // @ts-expect-error AsyncFunction is ok
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
         const fn: (param: HandlerParams) => Promise<void> = new AsyncFunction('context', action.handlerString);
         await fn({
           editor: editor!,

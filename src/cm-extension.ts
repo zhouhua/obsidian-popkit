@@ -75,6 +75,50 @@ export function popoverPlugin(plugin: PopkitPlugin) {
         posToOffset,
         offsetToPos,
         cm: this.view,
+        getValue: () => {
+          return this.view.state.doc.toString();
+        },
+        replaceSelection: (replacement: string) => {
+          const transaction = this.view.state.update({
+            changes: {
+              from: selection.from,
+              to: selection.to,
+              insert: replacement,
+            },
+          });
+          this.view.dispatch(transaction);
+        },
+        getLine: (n: number) => {
+          return this.view.state.doc.line(n + 1).text;
+        },
+        setLine: (n: number, text: string) => {
+          const line = this.view.state.doc.line(n + 1);
+          const transaction = this.view.state.update({
+            changes: {
+              from: line.from,
+              to: line.to,
+              insert: text,
+            },
+          });
+          this.view.dispatch(transaction);
+        },
+        getRange: (from: EditorPosition, to: EditorPosition) => {
+          const fromOffset = posToOffset(from);
+          const toOffset = posToOffset(to);
+          return this.view.state.sliceDoc(fromOffset, toOffset);
+        },
+        replaceRange: (replacement: string, from: EditorPosition, to: EditorPosition) => {
+          const fromOffset = posToOffset(from);
+          const toOffset = posToOffset(to);
+          const transaction = this.view.state.update({
+            changes: {
+              from: fromOffset,
+              to: toOffset,
+              insert: replacement,
+            },
+          });
+          this.view.dispatch(transaction);
+        },
       } as unknown as Editor;
     }
 
