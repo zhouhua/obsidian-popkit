@@ -32,6 +32,7 @@
     "@types/node": "^22.10.7",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/react-window": "^1.8.8",
     "@typescript-eslint/parser": "8.20.0",
     "builtin-modules": "4.0.0",
     "esbuild": "0.24.2",
@@ -70,6 +71,7 @@
     "monaco-editor": "^0.52.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-window": "^1.8.11",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
     "typesafe-i18n": "^5.26.2"

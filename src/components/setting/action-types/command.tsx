@@ -67,7 +67,7 @@ const CommandForm: FC<CommandFormProps> = ({
                       dangerouslySetInnerHTML={{
                         __html: item.markString,
                       }}
-                      className="pk-text-xs pk-pl-5"
+                      className="pk-text-xs pk-pl-5 pk-truncate"
                     >
                     </span>
                     {plugin === item.origin.pluginName && (
@@ -110,7 +110,7 @@ const CommandForm: FC<CommandFormProps> = ({
                       dangerouslySetInnerHTML={{
                         __html: command.markString,
                       }}
-                      className="pk-text-xs pk-pl-5"
+                      className="pk-text-xs pk-pl-5 pk-truncate"
                     >
                     </span>
                     {cmd === command.origin.id && (

@@ -1,8 +1,33 @@
 import { CheckIcon, icons } from 'lucide-react';
 import type { FC } from 'react';
+import { memo } from 'react';
 import type { OrderItemProps } from 'src/utils';
 import L from 'src/L';
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem } from '../../ui/combobox';
+
+const IconItem = memo(({ item, icon }: { item: OrderItemProps<string>; icon: string; }) => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const OptionIcon = icons[item.origin as keyof typeof icons];
+  return (
+    <ComboboxItem key={item.origin} label={item.origin} value={item.origin}>
+      <div className="pk-pl-5 pk-flex pk-items-center pk-gap-2">
+        <OptionIcon size={14} />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: item.markString,
+          }}
+          className="pk-text-xs"
+        >
+        </span>
+      </div>
+      {icon === item.origin && (
+        <span className="pk-absolute pk-start-2 pk-top-0 pk-flex pk-h-full pk-items-center pk-justify-center">
+          <CheckIcon className="pk-size-4" />
+        </span>
+      )}
+    </ComboboxItem>
+  );
+});
 
 interface IconFormProps {
   icon: string;
@@ -25,6 +50,7 @@ const IconForm: FC<IconFormProps> = ({
 }) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const Icon = icon in icons ? icons[icon as keyof typeof icons] : undefined;
+
   return (
     <div className="setting-item" style={{ padding: '10px 0' }}>
       <div className="setting-item-info">
@@ -86,7 +112,6 @@ const IconForm: FC<IconFormProps> = ({
                 </ComboboxItem>
               );
             })}
-            <ComboboxEmpty>{L.setting.noResult()}</ComboboxEmpty>
           </ComboboxContent>
         </Combobox>
       </div>

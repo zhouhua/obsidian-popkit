@@ -142,7 +142,7 @@ export const Combobox = ({
         setInputValue,
       }}
     >
-      <Popover open={isOpen}>{children}</Popover>
+      <Popover open>{children}</Popover>
     </ComboboxContext.Provider>
   );
 };

@@ -177,11 +177,46 @@ export function orderList<T>(
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   getKey: (item: T) => string = (item: T) => (item as string),
 ): OrderItemProps<T>[] {
-  const matchRes: OrderItemProps<T>[] = [];
+  // 当输入为空时，直接返回原列表
+  if (!inputValue) {
+    return list.map(item => ({
+      origin: item,
+      label: getKey(item),
+      isMatch: true,
+      markString: getKey(item),
+    }));
+  }
+
+  const containsMatchRes: OrderItemProps<T>[] = [];
+  const fuzzyMatchRes: OrderItemProps<T>[] = [];
   const noMatchRes: OrderItemProps<T>[] = [];
+
+  const lowerInputValue = inputValue.toLowerCase();
 
   list.forEach(item => {
     const label = getKey(item);
+    const lowerLabel = label.toLowerCase();
+
+    // 先检查是否包含完整匹配词
+    if (lowerLabel.includes(lowerInputValue)) {
+      // 对于包含匹配的项，创建带高亮的 markString
+      let markString = '';
+      const index = lowerLabel.indexOf(lowerInputValue);
+
+      markString = label.slice(0, index)
+        + '<mark>' + label.slice(index, index + inputValue.length) + '</mark>'
+        + label.slice(index + inputValue.length);
+
+      containsMatchRes.push({
+        origin: item,
+        label,
+        isMatch: true,
+        markString,
+      });
+      return; // 提前结束当前项的处理
+    }
+
+    // 只对不包含完整匹配词的项进行 fuzzy 匹配
     const fuzzyRes = fuzzy(label, inputValue);
     const orderItem: OrderItemProps<T> = {
       origin: item,
@@ -191,12 +226,12 @@ export function orderList<T>(
     };
 
     if (fuzzyRes.isMatch) {
-      matchRes.push(orderItem);
+      fuzzyMatchRes.push(orderItem);
     }
     else {
       noMatchRes.push(orderItem);
     }
   });
 
-  return [...matchRes, ...noMatchRes];
+  return [...containsMatchRes, ...fuzzyMatchRes, ...noMatchRes];
 }

@@ -65,10 +65,6 @@
   height: 100%;
 }
 
-.pk-max-h-\[240px\] {
-  max-height: 240px;
-}
-
 .pk-w-72 {
   width: 18rem;
 }
@@ -123,8 +119,14 @@
   gap: 1rem;
 }
 
-.pk-overflow-y-auto {
-  overflow-y: auto;
+.pk-overflow-hidden {
+  overflow: hidden;
+}
+
+.pk-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pk-rounded-md {
@@ -155,8 +157,8 @@
   fill: currentColor;
 }
 
-.\!pk-p-0 {
-  padding: 0px !important;
+.pk-p-0 {
+  padding: 0px;
 }
 
 .pk-p-4 {

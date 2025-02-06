@@ -6,6 +6,8 @@ import {
   useEffect,
   useMemo,
 } from 'react';
+import type { ListChildComponentProps } from 'react-window';
+import { FixedSizeList } from 'react-window';
 
 import { PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -13,9 +15,41 @@ import { cn } from '@/lib/utils';
 import { ComboboxItem, type ComboboxItemProps } from './combobox-item';
 import { useComboboxContext } from './context';
 
+const ITEM_HEIGHT = 28; // 每个选项的高度
+const LIST_HEIGHT = 360; // 列表最大高度
+
+interface VirtualizedListProps {
+  children: ReactElement<ComboboxItemProps>[];
+}
+
+const VirtualizedList = ({ children }: VirtualizedListProps) => {
+  if (!children.length) return null;
+
+  const height = Math.min(children.length * ITEM_HEIGHT, LIST_HEIGHT);
+
+  return (
+    <div style={{ height }}>
+      <FixedSizeList
+        height={height}
+        width="100%"
+        itemCount={children.length}
+        itemSize={ITEM_HEIGHT}
+        className="pk-scrollbar-none pk-outline-none"
+      >
+        {({ index, style }: ListChildComponentProps) => (
+          <div style={{ ...style, position: 'absolute', left: 0, right: 0 }}>
+            {children[index]}
+          </div>
+        )}
+      </FixedSizeList>
+    </div>
+  );
+};
+
 export const ComboboxContent = ({
   onOpenAutoFocus,
   children,
+  className,
   ...props
 }: ComponentPropsWithoutRef<typeof PopoverContent>) => {
   const { getMenuProps, isOpen, openedOnce, onItemsChange }
@@ -26,6 +60,15 @@ export const ComboboxContent = ({
       Children.toArray(children).filter(
         (child): child is ReactElement<ComboboxItemProps> =>
           isValidElement(child) && child.type === ComboboxItem,
+      ),
+    [children],
+  );
+
+  const otherChildren = useMemo(
+    () =>
+      Children.toArray(children).filter(
+        child =>
+          !isValidElement(child) || child.type !== ComboboxItem,
       ),
     [children],
   );
@@ -44,12 +87,11 @@ export const ComboboxContent = ({
     <PopoverContent
       {...props}
       forceMount
-      asChild
       className={cn(
-        'pk-w-[--radix-popper-anchor-width] !pk-p-0 pk-[[data-radix-popper-content-wrapper]:has(&)]:h-0',
+        'pk-w-[--radix-popper-anchor-width] pk-p-0 pk-overflow-hidden',
         !isOpen && 'pk-pointer-events-none',
         !openedOnce && 'pk-hidden',
-        'pk-max-h-[240px] pk-overflow-y-auto',
+        className,
       )}
       onOpenAutoFocus={e => {
         e.preventDefault();
@@ -57,9 +99,10 @@ export const ComboboxContent = ({
       }}
       {...getMenuProps?.({}, { suppressRefError: true })}
     >
-      <div>
-        {children}
-      </div>
+      <VirtualizedList>
+        {childItems}
+      </VirtualizedList>
+      {otherChildren}
     </PopoverContent>
   );
 };
