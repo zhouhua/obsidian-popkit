@@ -70,7 +70,7 @@ const zh: Translation = {
     commandLabel: '命令',
     hotkeysLabel: '快捷键',
     descriptionLabel: '描述',
-    descriptionDesc: '输入此快捷工具的描述，会在鼠标指向时悬浮显示',
+    descriptionDesc: '鼠标指向时悬浮显示',
     descriptionPlaceholder: '输入描述',
     iconNotice: '请选择图标',
     commandNotice: '请选择命令',

@@ -78,7 +78,64 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
         finish!();
       }
       else if (hasHotkeys(action)) {
-        // todo: trigger hotkeys
+        const [hotkeyStr] = action.hotkeys;
+        // 将热键字符串转换为事件参数
+        const key = hotkeyStr.split(' ').filter(k => !['Ctrl', '⌘', '⌥', '⇧'].includes(k)).pop() || '';
+        const ctrlKey = hotkeyStr.includes('Ctrl');
+        const metaKey = hotkeyStr.includes('⌘');
+        const altKey = hotkeyStr.includes('⌥');
+        const shiftKey = hotkeyStr.includes('⇧');
+        console.log('key', key, 'ctrlKey', ctrlKey, 'metaKey', metaKey, 'altKey', altKey, 'shiftKey', shiftKey);
+
+        // 获取当前焦点元素
+        const target = document.activeElement || document.body;
+
+        // 创建 keydown 事件
+        const keydown = new KeyboardEvent('keydown', {
+          key: key,
+          code: key.length === 1 ? `Key${key.toUpperCase()}` : key,
+          which: key.length === 1 ? key.charCodeAt(0) : 0,
+          ctrlKey,
+          metaKey,
+          altKey,
+          shiftKey,
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          repeat: false,
+          isComposing: false,
+          location: 0,
+          charCode: key.length === 1 ? key.charCodeAt(0) : 0,
+          keyCode: key.length === 1 ? key.charCodeAt(0) : 0,
+        });
+
+        // 创建 keyup 事件
+        const keyup = new KeyboardEvent('keyup', {
+          key: key,
+          code: key.length === 1 ? `Key${key.toUpperCase()}` : key,
+          which: key.length === 1 ? key.charCodeAt(0) : 0,
+          ctrlKey,
+          metaKey,
+          altKey,
+          shiftKey,
+          bubbles: true,
+          cancelable: true,
+          composed: true,
+          repeat: false,
+          isComposing: false,
+          location: 0,
+          charCode: key.length === 1 ? key.charCodeAt(0) : 0,
+          keyCode: key.length === 1 ? key.charCodeAt(0) : 0,
+        });
+
+        // 按顺序触发事件
+        target.dispatchEvent(keydown);
+        void (async () => {
+          await new Promise(resolve => setTimeout(resolve, 10));
+          target.dispatchEvent(keyup);
+        })();
+
+        finish!();
       }
       else {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars

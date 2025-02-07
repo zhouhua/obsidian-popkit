@@ -99,6 +99,7 @@ const NewCustomAction: FC<{
   useEffect(() => {
     if (plugin && cmd) {
       let { icon: cmdIcon } = commands[cmd] ?? {};
+      const { name: cmdName } = commands[cmd] ?? {};
       if (cmdIcon?.startsWith('lucide-')) {
         cmdIcon = cmdIcon.replace(/^lucide-/, '').replace(/\s/g, '');
       }
@@ -108,6 +109,9 @@ const NewCustomAction: FC<{
           setIcon(cmdIcon);
           setIconInput(cmdIcon);
         }
+      }
+      if (cmdName) {
+        setDescription(cmdName);
       }
     }
     else if (actionType !== 'command') {
@@ -251,27 +255,6 @@ const NewCustomAction: FC<{
         />
       )}
 
-      {/* Description Field - 只在 hotkeys 类型时显示 */}
-      {actionType === 'hotkeys' && (
-        <div className="setting-item" style={{ padding: '10px 0' }}>
-          <div className="setting-item-info">
-            <div className="setting-item-name">{L.setting.descriptionLabel()}</div>
-            <div className="setting-item-description">
-              {L.setting.descriptionDesc()}
-            </div>
-          </div>
-          <div className="setting-item-control">
-            <input
-              type="text"
-              className="setting-hotkey-input"
-              value={description}
-              placeholder={L.setting.descriptionPlaceholder()}
-              onChange={e => { setDescription(e.target.value); }}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Hotkeys Type Fields */}
       {actionType === 'hotkeys' && (
         <HotkeysForm
@@ -290,6 +273,25 @@ const NewCustomAction: FC<{
         inputReference={inputReference}
         onUpload={upload}
       />
+
+      {/* Description Field - Always visible */}
+      <div className="setting-item" style={{ padding: '10px 0' }}>
+        <div className="setting-item-info">
+          <div className="setting-item-name">{L.setting.descriptionLabel()}</div>
+          <div className="setting-item-description">
+            {L.setting.descriptionDesc()}
+          </div>
+        </div>
+        <div className="setting-item-control">
+          <input
+            type="text"
+            className="setting-hotkey-input"
+            value={description}
+            placeholder={L.setting.descriptionPlaceholder()}
+            onChange={e => { setDescription(e.target.value); }}
+          />
+        </div>
+      </div>
 
       {/* Add Button */}
       <div className="setting-item" style={{ padding: '10px 0' }}>

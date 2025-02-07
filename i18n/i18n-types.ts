@@ -282,7 +282,7 @@ type RootTranslation = {
 		 */
 		descriptionLabel: string
 		/**
-		 * E​n​t​e​r​ ​a​ ​d​e​s​c​r​i​p​t​i​o​n​ ​f​o​r​ ​t​h​i​s​ ​a​c​t​i​o​n​,​ ​i​t​ ​w​i​l​l​ ​b​e​ ​d​i​s​p​l​a​y​e​d​ ​w​h​e​n​ ​h​o​v​e​r​i​n​g​ ​o​v​e​r​ ​t​h​e​ ​m​o​u​s​e
+		 * S​h​o​w​n​ ​w​h​e​n​ ​h​o​v​e​r​i​n​g​ ​o​v​e​r​ ​t​h​e​ ​m​o​u​s​e
 		 */
 		descriptionDesc: string
 		/**
@@ -601,7 +601,7 @@ export type TranslationFunctions = {
 		 */
 		descriptionLabel: () => LocalizedString
 		/**
-		 * Enter a description for this action, it will be displayed when hovering over the mouse
+		 * Shown when hovering over the mouse
 		 */
 		descriptionDesc: () => LocalizedString
 		/**

@@ -70,7 +70,7 @@ const en: BaseTranslation = {
     commandLabel: 'Command',
     hotkeysLabel: 'Hotkeys',
     descriptionLabel: 'Description',
-    descriptionDesc: 'Enter a description for this action, it will be displayed when hovering over the mouse',
+    descriptionDesc: 'Shown when hovering over the mouse',
     descriptionPlaceholder: 'Enter description',
     iconNotice: 'Please select an icon',
     commandNotice: 'Please select a command',

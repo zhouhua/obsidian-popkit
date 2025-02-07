@@ -77,9 +77,9 @@ export const Combobox = ({
           if (!prev.inputValue && prev.highlightedIndex < 0)
             return { ...changes, inputValue: '', selectedItem: null };
 
-          const inputValue
+          const _inputValue
             = changes.selectedItem?.label || prev.selectedItem?.label || '';
-          return { ...changes, inputValue };
+          return { ...changes, inputValue: _inputValue };
         }
 
         default:
@@ -142,7 +142,7 @@ export const Combobox = ({
         setInputValue,
       }}
     >
-      <Popover open>{children}</Popover>
+      <Popover open={isOpen}>{children}</Popover>
     </ComboboxContext.Provider>
   );
 };

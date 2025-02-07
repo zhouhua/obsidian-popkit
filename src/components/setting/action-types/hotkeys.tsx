@@ -2,6 +2,7 @@
 import type { FC } from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { X, PlusCircle } from 'lucide-react';
+import L from 'src/L';
 
 interface HotkeysFormProps {
   hotkey: string;
@@ -29,7 +30,7 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
     // 处理其他键
     for (const key of keys) {
       if (!['Meta', 'Control', 'Alt', 'Shift'].includes(key)) {
-        mainKeys.push(key.length === 1 ? key.toUpperCase() : key);
+        mainKeys.push(key);
       }
     }
 

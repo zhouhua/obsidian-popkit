@@ -51,7 +51,7 @@ export interface IActionWithHotkeys extends IActionBase {
 }
 
 export function hasHotkeys(action: Action): action is IActionWithHotkeys {
-  return 'hotkeys' in action;
+  return 'hotkeys' in action && !('command' in action);
 }
 
 export type Action = IActionWithHandler | IActionWithHandlerString | IActionWithCommand | IActionWithHotkeys;
