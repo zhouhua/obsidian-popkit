@@ -21,6 +21,167 @@ interface ItemProps {
 
 const AsyncFunction = async function () { }.constructor;
 
+interface KeyboardEventParams {
+  key: string;
+  code: string;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
+  charCode?: number;
+  keyCode?: number;
+  which?: number;
+}
+
+// 获取键码映射
+const KEY_CODE_MAP: Record<string, number> = {
+  a: 65,
+  b: 66,
+  c: 67,
+  d: 68,
+  e: 69,
+  f: 70,
+  g: 71,
+  h: 72,
+  i: 73,
+  j: 74,
+  k: 75,
+  l: 76,
+  m: 77,
+  n: 78,
+  o: 79,
+  p: 80,
+  q: 81,
+  r: 82,
+  s: 83,
+  t: 84,
+  u: 85,
+  v: 86,
+  w: 87,
+  x: 88,
+  y: 89,
+  z: 90,
+  Control: 17,
+  Meta: 91,
+  Alt: 18,
+  Shift: 16,
+};
+
+function createKeyboardEvent(type: 'keydown' | 'keyup' | 'keypress', params: KeyboardEventParams): KeyboardEvent {
+  const keyCode = params.key.length === 1
+    ? KEY_CODE_MAP[params.key.toLowerCase()] || params.key.charCodeAt(0)
+    : KEY_CODE_MAP[params.key] || 0;
+
+  const init: KeyboardEventInit = {
+    ...params,
+    bubbles: false,
+    cancelable: true,
+    composed: true,
+    repeat: false,
+    isComposing: false,
+    location: 0,
+    keyCode,
+    which: keyCode,
+    charCode: type === 'keypress' ? keyCode : 0,
+    view: window,
+  };
+
+  return new KeyboardEvent(type, init);
+}
+
+async function simulateKeyboardEvents(target: EventTarget, params: KeyboardEventParams) {
+  const modifiers = [
+    { key: 'Control', pressed: params.ctrlKey },
+    { key: 'Meta', pressed: params.metaKey },
+    { key: 'Alt', pressed: params.altKey },
+    { key: 'Shift', pressed: params.shiftKey },
+  ].filter(m => m.pressed);
+
+  const doc = target instanceof Window ? target.document : document;
+
+  // 跟踪修饰键的状态
+  const modifierState = {
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    shiftKey: false,
+  };
+
+  // 按下修饰键
+  for (const mod of modifiers) {
+    // 更新当前修饰键的状态
+    switch (mod.key) {
+      case 'Control':
+        modifierState.ctrlKey = true;
+        break;
+      case 'Meta':
+        modifierState.metaKey = true;
+        break;
+      case 'Alt':
+        modifierState.altKey = true;
+        break;
+      case 'Shift':
+        modifierState.shiftKey = true;
+        break;
+    }
+
+    const modEvent = createKeyboardEvent('keydown', {
+      ...params,
+      key: mod.key,
+      code: `${mod.key}Left`,
+      // 使用当前的修饰键状态
+      ...modifierState,
+    });
+    doc.dispatchEvent(modEvent);
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+
+  // 主键按下 - 使用所有修饰键的最终状态
+  const downEvent = createKeyboardEvent('keydown', params);
+  doc.dispatchEvent(downEvent);
+
+  // 如果是可打印字符，触发 keypress
+  if (params.key.length === 1) {
+    const pressEvent = createKeyboardEvent('keypress', params);
+    doc.dispatchEvent(pressEvent);
+  }
+
+  await new Promise(resolve => setTimeout(resolve, 50));
+
+  // 主键释放 - 仍然使用所有修饰键的状态
+  const upEvent = createKeyboardEvent('keyup', params);
+  doc.dispatchEvent(upEvent);
+
+  // 释放修饰键（反序）
+  for (const mod of modifiers.reverse()) {
+    // 更新当前修饰键的状态
+    switch (mod.key) {
+      case 'Control':
+        modifierState.ctrlKey = false;
+        break;
+      case 'Meta':
+        modifierState.metaKey = false;
+        break;
+      case 'Alt':
+        modifierState.altKey = false;
+        break;
+      case 'Shift':
+        modifierState.shiftKey = false;
+        break;
+    }
+
+    const modUpEvent = createKeyboardEvent('keyup', {
+      ...params,
+      key: mod.key,
+      code: `${mod.key}Left`,
+      // 使用当前的修饰键状态
+      ...modifierState,
+    });
+    doc.dispatchEvent(modUpEvent);
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+}
+
 const Item = forwardRef<HTMLDivElement, ItemProps>(({
   action,
   editor,
@@ -37,115 +198,83 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const Icon = icons[icon as keyof typeof icons];
   const itemRef = useRef<HTMLDivElement>(null);
-  async function click(event: MouseEvent<HTMLDivElement>) {
+  function click(event: MouseEvent<HTMLDivElement>) {
     if (type === 'setting') {
       return;
     }
     event.preventDefault();
     event.stopPropagation();
-    try {
-      if (hasHandler(action)) {
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        await (parseFunction(action).handler as ((params: HandlerParams) => Promise<void> | void))({
-          editor: editor!,
-          getMarkdown: getMarkdown!,
-          replace: replace!,
-          app,
-          selection: selection!,
-          action,
-        });
-        finish!();
-      }
-      else if (hasCommand(action)) {
-        const result = app.commands.executeCommandById(action.command);
-        if (!result) {
-          console.error(`Command ${action.command} not found`);
+
+    const executeAction = async () => {
+      try {
+        if (hasHandler(action)) {
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+          await (parseFunction(action).handler as ((params: HandlerParams) => Promise<void> | void))({
+            editor: editor!,
+            getMarkdown: getMarkdown!,
+            replace: replace!,
+            app,
+            selection: selection!,
+            action,
+          });
+          finish!();
         }
+        else if (hasCommand(action)) {
+          const result = app.commands.executeCommandById(action.command);
+          if (!result) {
+            console.error(`Command ${action.command} not found`);
+          }
+          finish!();
+        }
+        else if (hasHandlerString(action)) {
+          // @ts-expect-error AsyncFunction is ok
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+          const fn: (param: HandlerParams) => Promise<void> = new AsyncFunction('context', action.handlerString);
+          await fn({
+            editor: editor!,
+            getMarkdown: getMarkdown!,
+            replace: replace!,
+            app,
+            selection: selection!,
+            action,
+          });
+          finish!();
+        }
+        else if (hasHotkeys(action)) {
+          const [hotkeyStr] = action.hotkeys;
+          const key = hotkeyStr.split(' ').filter(k => !['Ctrl', '⌘', '⌥', '⇧'].includes(k)).pop() || '';
+          const params: KeyboardEventParams = {
+            key,
+            code: key.length === 1 ? `Key${key.toUpperCase()}` : key,
+            ctrlKey: hotkeyStr.includes('Ctrl'),
+            metaKey: hotkeyStr.includes('⌘'),
+            altKey: hotkeyStr.includes('⌥'),
+            shiftKey: hotkeyStr.includes('⇧'),
+            charCode: key.length === 1 ? key.charCodeAt(0) : undefined,
+            keyCode: key.length === 1 ? key.charCodeAt(0) : undefined,
+            which: key.length === 1 ? key.charCodeAt(0) : undefined,
+          };
+
+          const target = document;
+          try {
+            await simulateKeyboardEvents(target, params);
+          }
+          finally {
+            // finish!();
+          }
+        }
+        else {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const exception: never = action;
+        }
+      }
+      catch (e) {
+        console.error(e);
         finish!();
       }
-      else if (hasHandlerString(action)) {
-        // @ts-expect-error AsyncFunction is ok
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
-        const fn: (param: HandlerParams) => Promise<void> = new AsyncFunction('context', action.handlerString);
-        await fn({
-          editor: editor!,
-          getMarkdown: getMarkdown!,
-          replace: replace!,
-          app,
-          selection: selection!,
-          action,
-        });
-        finish!();
-      }
-      else if (hasHotkeys(action)) {
-        const [hotkeyStr] = action.hotkeys;
-        // 将热键字符串转换为事件参数
-        const key = hotkeyStr.split(' ').filter(k => !['Ctrl', '⌘', '⌥', '⇧'].includes(k)).pop() || '';
-        const ctrlKey = hotkeyStr.includes('Ctrl');
-        const metaKey = hotkeyStr.includes('⌘');
-        const altKey = hotkeyStr.includes('⌥');
-        const shiftKey = hotkeyStr.includes('⇧');
-        console.log('key', key, 'ctrlKey', ctrlKey, 'metaKey', metaKey, 'altKey', altKey, 'shiftKey', shiftKey);
+    };
 
-        // 获取当前焦点元素
-        const target = document.activeElement || document.body;
-
-        // 创建 keydown 事件
-        const keydown = new KeyboardEvent('keydown', {
-          key: key,
-          code: key.length === 1 ? `Key${key.toUpperCase()}` : key,
-          which: key.length === 1 ? key.charCodeAt(0) : 0,
-          ctrlKey,
-          metaKey,
-          altKey,
-          shiftKey,
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          repeat: false,
-          isComposing: false,
-          location: 0,
-          charCode: key.length === 1 ? key.charCodeAt(0) : 0,
-          keyCode: key.length === 1 ? key.charCodeAt(0) : 0,
-        });
-
-        // 创建 keyup 事件
-        const keyup = new KeyboardEvent('keyup', {
-          key: key,
-          code: key.length === 1 ? `Key${key.toUpperCase()}` : key,
-          which: key.length === 1 ? key.charCodeAt(0) : 0,
-          ctrlKey,
-          metaKey,
-          altKey,
-          shiftKey,
-          bubbles: true,
-          cancelable: true,
-          composed: true,
-          repeat: false,
-          isComposing: false,
-          location: 0,
-          charCode: key.length === 1 ? key.charCodeAt(0) : 0,
-          keyCode: key.length === 1 ? key.charCodeAt(0) : 0,
-        });
-
-        // 按顺序触发事件
-        target.dispatchEvent(keydown);
-        void (async () => {
-          await new Promise(resolve => setTimeout(resolve, 10));
-          target.dispatchEvent(keyup);
-        })();
-
-        finish!();
-      }
-      else {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const exception: never = action;
-      }
-    }
-    catch (e) {
-      console.error(e);
-      finish!();
-    }
+    void executeAction();
   }
   useEffect(() => {
     if (itemRef.current) {

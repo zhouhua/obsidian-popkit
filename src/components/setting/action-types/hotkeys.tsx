@@ -3,6 +3,7 @@ import type { FC } from 'react';
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { X, PlusCircle } from 'lucide-react';
 import L from 'src/L';
+import { Platform } from 'obsidian';
 
 interface HotkeysFormProps {
   hotkey: string;
@@ -22,10 +23,18 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
     const mainKeys: string[] = [];
 
     // 先处理修饰键，按固定顺序
-    if (keys.includes('Meta')) modifiers.push('⌘');
-    if (keys.includes('Control')) modifiers.push('Ctrl');
-    if (keys.includes('Alt')) modifiers.push('⌥');
-    if (keys.includes('Shift')) modifiers.push('⇧');
+    if (Platform.isMacOS) {
+      if (keys.includes('Meta')) modifiers.push('⌘');
+      if (keys.includes('Control')) modifiers.push('Ctrl');
+      if (keys.includes('Alt')) modifiers.push('⌥');
+      if (keys.includes('Shift')) modifiers.push('⇧');
+    }
+    else {
+      if (keys.includes('Control')) modifiers.push('Ctrl');
+      if (keys.includes('Alt')) modifiers.push('Alt');
+      if (keys.includes('Shift')) modifiers.push('Shift');
+      if (keys.includes('Meta')) modifiers.push('Win');
+    }
 
     // 处理其他键
     for (const key of keys) {
@@ -51,14 +60,26 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
     const handleKeyDown = (e: KeyboardEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
 
-      keysPressed.current.add(e.key);
+      // 添加修饰键
+      if (e.metaKey) keysPressed.current.add('Meta');
+      if (e.ctrlKey) keysPressed.current.add('Control');
+      if (e.altKey) keysPressed.current.add('Alt');
+      if (e.shiftKey) keysPressed.current.add('Shift');
+
+      // 添加主键（非修饰键）
+      if (!['Meta', 'Control', 'Alt', 'Shift'].includes(e.key)) {
+        keysPressed.current.add(e.key);
+      }
+
       updateHotkey();
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
 
       // 在第一个按键释放时结束录制
       const finalHotkey = generateHotkeyString(Array.from(keysPressed.current));
@@ -68,16 +89,16 @@ const HotkeysForm: FC<HotkeysFormProps> = ({
 
       setRecording(false);
       keysPressed.current.clear();
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('keyup', handleKeyUp, true);
     };
 
-    document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('keyup', handleKeyUp, true);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('keyup', handleKeyUp, true);
       keysPressed.current.clear();
     };
   }, [recording, onChange, updateHotkey, generateHotkeyString]);
