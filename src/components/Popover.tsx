@@ -36,7 +36,7 @@ const Popover: FC<PopoverProps> = ({
     // 使用 requestAnimationFrame 确保在下一帧计算位置
     requestAnimationFrame(() => {
       const pos = editor.getCursor();
-      const coord = editor.coordsAtPos(pos, true);
+      const coord = editor.coordsAtPos(pos, false);
       let left = 0;
       let top = 0;
       const rect = out.getBoundingClientRect();
