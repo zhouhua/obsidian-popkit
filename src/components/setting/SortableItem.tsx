@@ -1,26 +1,44 @@
+import type { CSSProperties, PropsWithChildren } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const SortableItem = ({ children, id, className }: { children: React.ReactNode; id: string; className?: string; }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+interface Props extends PropsWithChildren {
+  id: string;
+  className?: string;
+}
 
-  const style = {
+export default function SortableItem({ id, children, className }: Props) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+    data: {
+      type: 'sortable',
+    },
+  });
+
+  const style: CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0.8 : undefined,
+    cursor: 'grab',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div
-        style={{
-          transition: 'all 0.2s ease',
-        }}
-        className={className}
-      >
-        {children}
-      </div>
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={className}
+      {...attributes}
+      {...listeners}
+    >
+      {children}
+      111
     </div>
   );
-};
-
-export default SortableItem;
+}

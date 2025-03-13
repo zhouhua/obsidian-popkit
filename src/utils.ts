@@ -1,5 +1,7 @@
-import type { Action, HandlerParams, IActionWithHandler, PopoverItem } from './types';
+import type { App } from 'obsidian';
+import type { Action, HandlerParams, IActionItem, IActionWithHandler, IGroupItem, PopoverItem } from './types';
 import { hasHandler, ItemType } from './types';
+import type { InternalPluginNameType } from 'obsidian-typings';
 
 export function changeAction(action: Action, type: 'normal' | 'setting', selection?: string) {
   let newAction = { ...action };
@@ -234,4 +236,66 @@ export function orderList<T>(
   });
 
   return [...containsMatchRes, ...fuzzyMatchRes, ...noMatchRes];
+}
+
+export function filterMap(list: PopoverItem[], type: 'normal' | 'setting', app: App, selection?: string): PopoverItem[] {
+  return list.map<PopoverItem>(item => {
+    if (item.type === ItemType.Divider) {
+      return item;
+    }
+    if (item.type === ItemType.Group) {
+      return {
+        type: item.type,
+        id: item.id,
+        group: {
+          ...item.group,
+          items: filterMap(item.group.items, type, app, selection),
+        },
+      } satisfies IGroupItem;
+    }
+    return {
+      type: item.type,
+      id: item.id,
+      action: changeAction(item.action, type, type === 'setting' ? item.action.exampleText : selection),
+    } satisfies IActionItem;
+  }).filter(item => {
+    if (type === 'setting' || item.type === ItemType.Divider) {
+      return true;
+    }
+    if (item.type === ItemType.Group) {
+      return item.group.items.length > 0;
+    }
+    const { action } = item;
+    let valid = Boolean(action.name || action.icon);
+    if (valid && action.test) {
+      const reg = new RegExp(action.test.replace(/\\/g, '\\\\'));
+      valid = reg.test(selection ?? '') && Boolean(action.name || action.icon);
+    }
+    if (valid && action.dependencies) {
+      valid = action.dependencies.every(dep => {
+        return [
+          'editor',
+          'app',
+          'workspace',
+          'file-explorer',
+          'markdown',
+          'open-with-default-app',
+          'theme',
+          'window',
+        ].includes(dep)
+        || app.plugins.enabledPlugins.has(dep)
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        || app.internalPlugins.getEnabledPluginById(dep as InternalPluginNameType);
+      });
+    }
+    return valid;
+  }).filter((item, i, _list) => {
+    if (item.type === ItemType.Divider && type !== 'setting') {
+      if (i > 0 && _list[i - 1].type === ItemType.Divider) {
+        return false;
+      }
+      return i !== 0 && i !== _list.length - 1;
+    }
+    return true;
+  });
 }

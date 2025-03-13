@@ -218,6 +218,10 @@ type RootTranslation = {
 		 */
 		divider: string
 		/**
+		 * G​r​o​u​p
+		 */
+		group: string
+		/**
 		 * U​p​l​o​a​d
 		 */
 		upload: string
@@ -536,6 +540,10 @@ export type TranslationFunctions = {
 		 * Divider
 		 */
 		divider: () => LocalizedString
+		/**
+		 * Group
+		 */
+		group: () => LocalizedString
 		/**
 		 * Upload
 		 */

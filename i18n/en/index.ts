@@ -54,6 +54,7 @@ const en: BaseTranslation = {
     custom: 'Custom actions',
     add: 'Add custom action',
     divider: 'Divider',
+    group: 'Group',
     upload: 'Upload',
     customTitle: 'Add custom action',
     addSuccess: 'A custom action has been added successfully',

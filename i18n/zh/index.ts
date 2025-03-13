@@ -54,6 +54,7 @@ const zh: Translation = {
     custom: '自定义快捷工具',
     add: '添加自定义快捷工具',
     divider: '分割线',
+    group: '分组',
     upload: '上传',
     customTitle: '自定义快捷工具',
     addSuccess: '自定义快捷工具添加成功',

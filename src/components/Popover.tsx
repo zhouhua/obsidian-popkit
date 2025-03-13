@@ -4,9 +4,9 @@ import { useEffect, useLayoutEffect, useRef, useState, useMemo } from 'react';
 import type { PopoverItem } from 'src/types';
 import { ItemType } from 'src/types';
 import Item from './Item';
-import { changeAction } from 'src/utils';
-import type { InternalPluginNameType } from 'obsidian-typings';
-
+import { filterMap } from 'src/utils';
+import Group from './Group';
+import Back from './Back';
 interface PopoverProps {
   editor?: Editor;
   destory?: () => void;
@@ -29,6 +29,7 @@ const Popover: FC<PopoverProps> = ({
   const [positionLeft, setPositionLeft] = useState(0);
   const [positionTop, setPositionTop] = useState(0);
   const [firstRender, setFirstRender] = useState(-1);
+  const [layers, setLayers] = useState<PopoverItem[][]>([]);
 
   function calcPosition() {
     if (!editor || !out) return;
@@ -107,52 +108,7 @@ const Popover: FC<PopoverProps> = ({
   }
 
   const filterList = useMemo(() => {
-    return actions
-      .map(item => {
-        if (item.type === ItemType.Divider) {
-          return item;
-        }
-        return { type: item.type, action: changeAction(item.action, type, type === 'setting' ? item.action.exampleText : selection) };
-      })
-      .filter(item => {
-        if (type === 'setting' || item.type === ItemType.Divider) {
-          return true;
-        }
-        const { action } = item;
-        let valid = Boolean(action.name || action.icon);
-        if (valid && action.test) {
-          const reg = new RegExp(action.test.replace(/\\/g, '\\\\'));
-          valid = reg.test(selection ?? '') && Boolean(action.name || action.icon);
-        }
-        if (valid && action.dependencies) {
-          valid = action.dependencies.every(dep => {
-            return [
-              'editor',
-              'app',
-              'workspace',
-              'file-explorer',
-              'markdown',
-              'open-with-default-app',
-              'theme',
-              'window',
-            ].includes(dep)
-              // eslint-disable-next-line @stylistic/indent-binary-ops
-              || app.plugins.enabledPlugins.has(dep)
-              // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-              || app.internalPlugins.getEnabledPluginById(dep as InternalPluginNameType);
-          });
-        }
-        return valid;
-      })
-      .filter((item, i, list) => {
-        if (item.type === ItemType.Divider) {
-          if (i > 0 && list[i - 1].type === ItemType.Divider) {
-            return false;
-          }
-          return i !== 0 && i !== list.length - 1;
-        }
-        return true;
-      });
+    return filterMap(actions, type, app, selection);
   }, [actions, type, selection, app.plugins.enabledPlugins]);
 
   useEffect(() => {
@@ -176,7 +132,15 @@ const Popover: FC<PopoverProps> = ({
     }
   }, [positionLeft, positionTop]);
 
-  if (!filterList.some(i => i.type === ItemType.Action)) {
+  useEffect(() => {
+    setLayers([filterList]);
+  }, [filterList]);
+
+  if (!filterList.some(i => i.type === ItemType.Action || i.type === ItemType.Group)) {
+    return null;
+  }
+
+  if (layers.length === 0) {
     return null;
   }
 
@@ -190,7 +154,17 @@ const Popover: FC<PopoverProps> = ({
       className={`popkit-container ${type === 'normal' ? 'popkit-normal' : 'popkit-setting'}`}
     >
       <ul ref={listRef}>
-        {filterList.map((popoverItem, i) => (
+        {layers.length > 1 && (
+          <li>
+            <Back
+              onClick={() => {
+                setLayers(layers.slice(0, -1));
+                calcPosition();
+              }}
+            />
+          </li>
+        )}
+        {layers[layers.length - 1].map((popoverItem, i) => (
           <li key={`${i}`}>
             {popoverItem.type === ItemType.Action && (
               <Item
@@ -205,6 +179,17 @@ const Popover: FC<PopoverProps> = ({
               />
             )}
             {popoverItem.type === ItemType.Divider && <div className="popkit-divider" />}
+            {popoverItem.type === ItemType.Group && (
+              <Group
+                group={popoverItem.group}
+                onClick={() => {
+                  if (type === 'normal') {
+                    setLayers([...layers, popoverItem.group.items]);
+                    calcPosition();
+                  }
+                }}
+              />
+            )}
           </li>
         ))}
       </ul>

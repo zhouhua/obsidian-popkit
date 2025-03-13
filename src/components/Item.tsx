@@ -7,6 +7,7 @@ import { hasCommand, hasHandler, hasHandlerString, hasHotkeys } from 'src/types'
 import uniqueId from 'lodash/uniqueId';
 import { icons } from 'lucide-react';
 import { parseFunction } from 'src/utils';
+import { cn } from '@/lib/utils';
 
 interface ItemProps {
   action: Action;
@@ -17,6 +18,8 @@ interface ItemProps {
   finish?: () => void;
   app: App;
   type: 'normal' | 'setting';
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+  highlight?: boolean;
 }
 
 const AsyncFunction = async function () { }.constructor;
@@ -191,6 +194,8 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   finish,
   app,
   type,
+  onClick,
+  highlight = false,
 }, ref) => {
   const [id] = useState<string>(uniqueId('action-item-'));
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -200,6 +205,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
   const itemRef = useRef<HTMLDivElement>(null);
   function click(event: MouseEvent<HTMLDivElement>) {
     if (type === 'setting') {
+      onClick?.(event);
       return;
     }
     event.preventDefault();
@@ -260,7 +266,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
             await simulateKeyboardEvents(target, params);
           }
           finally {
-            // finish!();
+            finish!();
           }
         }
         else {
@@ -290,7 +296,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
       <div
         ref={itemRef}
         id={id}
-        className="popkit-item"
+        className={cn('popkit-item', highlight && 'popkit-item-highlight')}
         onClick={click}
       >
         {icon && (
@@ -300,7 +306,7 @@ const Item = forwardRef<HTMLDivElement, ItemProps>(({
             )
             : icon in icons
               ? (
-                <Icon size={20} color="#fff" />
+                <Icon size={20} />
               )
               : (
                 <div className="popkit-item-text">{icon}</div>
