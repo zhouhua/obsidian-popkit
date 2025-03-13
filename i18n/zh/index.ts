@@ -82,6 +82,13 @@ const zh: Translation = {
     notSet: '未设置',
     customHotkey: '自定义快捷键',
     cancelSetting: '取消设置',
+    testRegexLabel: '正则表达式过滤',
+    testRegexDesc: '通过正则表达式控制何时显示该操作。只有当选中的文本匹配此模式时，该操作才会出现。例如：',
+    testRegexPlaceholder: '输入正则表达式（可选）',
+    testRegexExample1: '仅当选中文本只包含小写字母时显示',
+    testRegexExample2: '仅当选中文本包含数字时显示',
+    testRegexExample3: '仅当选中文本以井号开头时显示',
+    invalidRegex: '无效的正则表达式',
   },
 };
 

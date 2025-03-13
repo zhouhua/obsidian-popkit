@@ -11,6 +11,7 @@ import { useDebounce } from 'ahooks';
 import CommandForm from './action-types/command';
 import HotkeysForm from './action-types/hotkeys';
 import IconForm from './action-types/icon';
+import RegexForm from './action-types/regex';
 import { icons } from 'lucide-react';
 import startCase from 'lodash/startCase';
 
@@ -29,6 +30,7 @@ const NewCustomAction: FC<{
   const [cmdInput, setCmdInput] = useState<string>('');
   const [hotkey, setHotkey] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const [test, setTest] = useState<string>('');
   const inputReference = useRef<HTMLInputElement>(null);
   const iconInputDebounce = useDebounce<string>(iconInput, { wait: 400 });
   const pluginInputDebounce = useDebounce<string>(pluginInput, { wait: 400 });
@@ -154,11 +156,24 @@ const NewCustomAction: FC<{
       return;
     }
 
+    // 检查正则表达式是否合法
+    if (test) {
+      try {
+        new RegExp(test);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      catch (e) {
+        new Notice(L.setting.invalidRegex());
+        return;
+      }
+    }
+
     let action: IActionWithCommand | IActionWithHotkeys;
     const baseAction = {
       icon,
       name: '',
       desc: description || '',
+      test: test || undefined,
     };
 
     switch (actionType) {
@@ -202,7 +217,7 @@ const NewCustomAction: FC<{
 
     onChange(action);
     new Notice(L.setting.addSuccess());
-  }, [actionType, plugin, cmd, commands, icon, hotkey, description, onChange]);
+  }, [actionType, plugin, cmd, commands, icon, hotkey, description, test, onChange]);
 
   return (
     <div className="popkit-setting-form">
@@ -292,6 +307,12 @@ const NewCustomAction: FC<{
           />
         </div>
       </div>
+
+      {/* RegEx Test Field - Always visible */}
+      <RegexForm
+        test={test}
+        onChange={setTest}
+      />
 
       {/* Add Button */}
       <div className="setting-item" style={{ padding: '10px 0' }}>

@@ -329,6 +329,34 @@ type RootTranslation = {
 		 * C​a​n​c​e​l​ ​s​e​t​t​i​n​g
 		 */
 		cancelSetting: string
+		/**
+		 * R​e​g​u​l​a​r​ ​E​x​p​r​e​s​s​i​o​n​ ​F​i​l​t​e​r
+		 */
+		testRegexLabel: string
+		/**
+		 * C​o​n​t​r​o​l​ ​w​h​e​n​ ​t​h​i​s​ ​a​c​t​i​o​n​ ​i​s​ ​a​v​a​i​l​a​b​l​e​ ​b​y​ ​r​e​g​u​l​a​r​ ​e​x​p​r​e​s​s​i​o​n​.​ ​F​o​r​ ​e​x​a​m​p​l​e​:
+		 */
+		testRegexDesc: string
+		/**
+		 * E​n​t​e​r​ ​r​e​g​u​l​a​r​ ​e​x​p​r​e​s​s​i​o​n​ ​(​o​p​t​i​o​n​a​l​)
+		 */
+		testRegexPlaceholder: string
+		/**
+		 * O​n​l​y​ ​s​h​o​w​s​ ​w​h​e​n​ ​s​e​l​e​c​t​e​d​ ​t​e​x​t​ ​c​o​n​t​a​i​n​s​ ​o​n​l​y​ ​l​o​w​e​r​c​a​s​e​ ​l​e​t​t​e​r​s
+		 */
+		testRegexExample1: string
+		/**
+		 * O​n​l​y​ ​s​h​o​w​s​ ​w​h​e​n​ ​s​e​l​e​c​t​e​d​ ​t​e​x​t​ ​c​o​n​t​a​i​n​s​ ​n​u​m​b​e​r​s
+		 */
+		testRegexExample2: string
+		/**
+		 * O​n​l​y​ ​s​h​o​w​s​ ​w​h​e​n​ ​s​e​l​e​c​t​e​d​ ​t​e​x​t​ ​s​t​a​r​t​s​ ​w​i​t​h​ ​a​ ​h​a​s​h​t​a​g
+		 */
+		testRegexExample3: string
+		/**
+		 * I​n​v​a​l​i​d​ ​r​e​g​u​l​a​r​ ​e​x​p​r​e​s​s​i​o​n
+		 */
+		invalidRegex: string
 	}
 }
 
@@ -648,6 +676,34 @@ export type TranslationFunctions = {
 		 * Cancel setting
 		 */
 		cancelSetting: () => LocalizedString
+		/**
+		 * Regular Expression Filter
+		 */
+		testRegexLabel: () => LocalizedString
+		/**
+		 * Control when this action is available by regular expression. For example:
+		 */
+		testRegexDesc: () => LocalizedString
+		/**
+		 * Enter regular expression (optional)
+		 */
+		testRegexPlaceholder: () => LocalizedString
+		/**
+		 * Only shows when selected text contains only lowercase letters
+		 */
+		testRegexExample1: () => LocalizedString
+		/**
+		 * Only shows when selected text contains numbers
+		 */
+		testRegexExample2: () => LocalizedString
+		/**
+		 * Only shows when selected text starts with a hashtag
+		 */
+		testRegexExample3: () => LocalizedString
+		/**
+		 * Invalid regular expression
+		 */
+		invalidRegex: () => LocalizedString
 	}
 }
 

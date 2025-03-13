@@ -82,7 +82,13 @@ const en: BaseTranslation = {
     notSet: 'Not set',
     customHotkey: 'Custom hotkey',
     cancelSetting: 'Cancel setting',
+    testRegexLabel: 'Regular Expression Filter',
+    testRegexDesc: 'Control when this action is available by regular expression. For example:',
+    testRegexPlaceholder: 'Enter regular expression (optional)',
+    testRegexExample1: 'Only shows when selected text contains only lowercase letters',
+    testRegexExample2: 'Only shows when selected text contains numbers',
+    testRegexExample3: 'Only shows when selected text starts with a hashtag',
+    invalidRegex: 'Invalid regular expression',
   },
 };
-
 export default en;

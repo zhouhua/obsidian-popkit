@@ -121,7 +121,7 @@ const Popover: FC<PopoverProps> = ({
         const { action } = item;
         let valid = Boolean(action.name || action.icon);
         if (valid && action.test) {
-          const reg = new RegExp(action.test.replace(/\\/g, '\\\\'));
+          const reg = new RegExp(action.test);
           valid = reg.test(selection ?? '') && Boolean(action.name || action.icon);
         }
         if (valid && action.dependencies) {
