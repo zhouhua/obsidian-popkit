@@ -61,7 +61,7 @@ const en: BaseTranslation = {
     command: 'Command: ',
     icon: 'Icon: ',
     empty: 'No custom actions available yet. You can add them using the form below.',
-    disableNativeToolbar: 'Disable the system toolbar when selecting text',
+    disableNativeToolbar: 'Disable the system toolbar when selecting text (for edit mode)',
     mouseSelectionOnly: 'Only show Popkit when selecting text with mouse',
     noResult: 'No results.',
     pickItem: 'Please pick an item...',

@@ -19,7 +19,15 @@ export default class PopkitPlugin extends Plugin {
       document.body,
       'contextmenu',
       e => {
-        this.settings.disableNativeToolbar && Platform.isMobile && e.preventDefault();
+        if (this.settings.disableNativeToolbar && Platform.isMobile) {
+          const { target } = e;
+          if (target instanceof HTMLElement) {
+            const isInEditor = target.closest('.cm-editor') !== null;
+            if (isInEditor) {
+              e.preventDefault();
+            }
+          }
+        }
       },
     );
     this.addCommand({

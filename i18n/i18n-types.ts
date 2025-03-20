@@ -246,7 +246,7 @@ type RootTranslation = {
 		 */
 		empty: string
 		/**
-		 * D​i​s​a​b​l​e​ ​t​h​e​ ​s​y​s​t​e​m​ ​t​o​o​l​b​a​r​ ​w​h​e​n​ ​s​e​l​e​c​t​i​n​g​ ​t​e​x​t
+		 * D​i​s​a​b​l​e​ ​t​h​e​ ​s​y​s​t​e​m​ ​t​o​o​l​b​a​r​ ​w​h​e​n​ ​s​e​l​e​c​t​i​n​g​ ​t​e​x​t​ ​(​f​o​r​ ​e​d​i​t​ ​m​o​d​e​)
 		 */
 		disableNativeToolbar: string
 		/**
@@ -593,7 +593,7 @@ export type TranslationFunctions = {
 		 */
 		empty: () => LocalizedString
 		/**
-		 * Disable the system toolbar when selecting text
+		 * Disable the system toolbar when selecting text (for edit mode)
 		 */
 		disableNativeToolbar: () => LocalizedString
 		/**

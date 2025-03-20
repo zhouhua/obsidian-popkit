@@ -1,4 +1,4 @@
-import type { App, Command, Plugin } from 'obsidian';
+import type { App, Command } from 'obsidian';
 import { Notice } from 'obsidian';
 import type { FC } from 'react';
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
@@ -6,7 +6,6 @@ import L from 'src/L';
 import type { OrderItemProps } from 'src/utils';
 import { fileToBase64, orderList } from 'src/utils';
 import type { Action, IActionWithCommand, IActionWithHotkeys } from 'src/types';
-import type { InternalPlugin } from 'obsidian-typings';
 import { useDebounce } from 'ahooks';
 import CommandForm from './action-types/command';
 import HotkeysForm from './action-types/hotkeys';
@@ -23,124 +22,85 @@ const NewCustomAction: FC<{
 }> = ({ app, onChange }) => {
   const [actionType, setActionType] = useState<ActionType>('command');
   const [icon, setIcon] = useState<string>('');
-  const [plugin, setPlugin] = useState<string>('');
   const [cmd, setCmd] = useState<string>('');
   const [iconInput, setIconInput] = useState<string>('');
-  const [pluginInput, setPluginInput] = useState<string>('');
   const [cmdInput, setCmdInput] = useState<string>('');
   const [hotkey, setHotkey] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [test, setTest] = useState<string>('');
   const inputReference = useRef<HTMLInputElement>(null);
   const iconInputDebounce = useDebounce<string>(iconInput, { wait: 400 });
-  const pluginInputDebounce = useDebounce<string>(pluginInput, { wait: 400 });
   const cmdInputDebounce = useDebounce<string>(cmdInput, { wait: 400 });
 
-  interface PluginInfo {
-    pluginName: string;
-    plugin?: Plugin | InternalPlugin<object>;
-    isEnabled: boolean;
-    commands: Command[];
+  interface CommandWithPluginInfo extends Command {
+    pluginId: string;
   }
 
   const { commands } = app.commands;
   const { plugins } = app.plugins;
   const { plugins: internalPlugins, config: internalPluginConfig } = app.internalPlugins;
-  const info: Array<PluginInfo> = [];
-  Object.keys(commands).forEach(key => {
-    const [pluginId, cmdId] = key.split(':');
-    if (pluginId && cmdId) {
-      const cache = info.find(i => i.pluginName === pluginId);
-      if (cache) {
-        cache.commands.push(commands[key]);
-      }
-      else {
-        const pluginInfo = pluginId in plugins
-          ? plugins[pluginId]
-          : pluginId in internalPlugins
-            // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-            ? (internalPlugins as Record<string, InternalPlugin<object>>)[pluginId]
-            : undefined;
+
+  // 创建一个包含所有命令的统一列表，同时保留命令所属的插件信息
+  const allCommands: CommandWithPluginInfo[] = useMemo(() => {
+    const result: CommandWithPluginInfo[] = [];
+    Object.keys(commands).forEach(key => {
+      const [pluginId, cmdId] = key.split(':');
+      if (pluginId && cmdId) {
         const isEnabled = app.plugins.enabledPlugins.has(pluginId)
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           || Boolean((internalPluginConfig as Record<string, boolean>)[pluginId]);
 
-        if (pluginId && isEnabled === Boolean(pluginInfo)) {
-          info.push({
-            pluginName: pluginId,
-            plugin: pluginInfo,
-            isEnabled,
-            commands: [commands[key]],
+        const pluginExists = pluginId in plugins || pluginId in internalPlugins;
+
+        if (pluginId && isEnabled && pluginExists) {
+          const command = commands[key];
+          result.push({
+            ...command,
+            pluginId,
           });
         }
       }
-    }
-  });
+    });
+    return result;
+  }, [commands, plugins, internalPlugins, internalPluginConfig, app.plugins.enabledPlugins]);
 
   useEffect(() => {
-    if (!plugin) {
-      setPlugin(info[0]?.pluginName ?? '');
-      setPluginInput(info[0]?.pluginName ?? '');
-    }
-  }, [info.length, plugin]);
-
-  useEffect(() => {
-    if (plugin) {
-      const cache = info.find(i => i.pluginName === plugin);
-      if (cache?.commands.length && !cache.commands.find(c => c.id === cmd)) {
-        setCmd(cache.commands[0].id);
-        setCmdInput(cache.commands[0].id);
-      }
-    }
-    else {
-      setCmd('');
-      setCmdInput('');
-    }
-  }, [plugin, info, cmd]);
-
-  useEffect(() => {
-    if (plugin && cmd) {
-      let { icon: cmdIcon } = commands[cmd] ?? {};
-      const { name: cmdName } = commands[cmd] ?? {};
-      if (cmdIcon?.startsWith('lucide-')) {
-        cmdIcon = cmdIcon.replace(/^lucide-/, '').replace(/\s/g, '');
-      }
-      if (cmdIcon) {
-        cmdIcon = startCase(cmdIcon).replace(/\s/g, '');
-        if (cmdIcon in icons) {
-          setIcon(cmdIcon);
-          setIconInput(cmdIcon);
+    if (cmd) {
+      const selectedCommand = allCommands.find(c => c.id === cmd);
+      if (selectedCommand) {
+        let cmdIcon = selectedCommand.icon;
+        if (cmdIcon?.startsWith('lucide-')) {
+          cmdIcon = cmdIcon.replace(/^lucide-/, '').replace(/\s/g, '');
         }
-      }
-      if (cmdName) {
-        setDescription(cmdName);
+        if (cmdIcon) {
+          cmdIcon = startCase(cmdIcon).replace(/\s/g, '');
+          if (cmdIcon in icons) {
+            setIcon(cmdIcon);
+            setIconInput(cmdIcon);
+          }
+        }
+        if (selectedCommand.name) {
+          setDescription(selectedCommand.name);
+        }
       }
     }
     else if (actionType !== 'command') {
       setIcon('');
       setIconInput('');
     }
-  }, [commands, plugin, cmd, actionType]);
+  }, [allCommands, cmd, actionType]);
 
-  const orderedCmdList = useMemo<OrderItemProps<Command>[]>(() => {
-    return orderList<Command>(
-      info.find(i => i.pluginName === plugin)?.commands ?? [],
+  const orderedCmdList = useMemo<OrderItemProps<CommandWithPluginInfo>[]>(() => {
+    return orderList<CommandWithPluginInfo>(
+      allCommands,
       cmdInputDebounce,
-      (item: Command) => `${item.name}(${item.id})`,
+      (item: CommandWithPluginInfo) => `${item.name} (${item.pluginId})`,
     );
-  }, [info, plugin, cmdInputDebounce]);
+  }, [allCommands, cmdInputDebounce]);
 
   const orderedIconList = useMemo<OrderItemProps<string>[]>(() => {
     return orderList<string>(Object.keys(icons), iconInputDebounce);
   }, [iconInputDebounce]);
-
-  const orderedPluginList = useMemo<OrderItemProps<PluginInfo>[]>(() => {
-    return orderList<PluginInfo>(
-      info,
-      pluginInputDebounce,
-      item => item.pluginName,
-    );
-  }, [info, pluginInputDebounce]);
 
   const upload = useCallback(async () => {
     const file = inputReference.current?.files?.[0];
@@ -178,21 +138,23 @@ const NewCustomAction: FC<{
 
     switch (actionType) {
       case 'command': {
-        if (!plugin || !cmd) {
+        if (!cmd) {
           new Notice(L.setting.commandNotice());
           return;
         }
-        const command = commands[cmd];
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (!command) {
+
+        // 从所有命令中找到选择的命令
+        const selectedCommand = allCommands.find(c => c.id === cmd);
+        if (!selectedCommand) {
           new Notice(L.setting.invalidCommand());
           return;
         }
+
         action = {
           ...baseAction,
-          name: command.name,
-          desc: description || command.name,
-          dependencies: [plugin],
+          name: selectedCommand.name,
+          desc: description || selectedCommand.name,
+          dependencies: [selectedCommand.pluginId],
           command: cmd,
         };
         break;
@@ -217,7 +179,7 @@ const NewCustomAction: FC<{
 
     onChange(action);
     new Notice(L.setting.addSuccess());
-  }, [actionType, plugin, cmd, commands, icon, hotkey, description, test, onChange]);
+  }, [actionType, cmd, allCommands, icon, hotkey, description, test, onChange]);
 
   return (
     <div className="popkit-setting-form">
@@ -257,14 +219,9 @@ const NewCustomAction: FC<{
       {actionType === 'command' && (
         <CommandForm
           app={app}
-          plugin={plugin}
           cmd={cmd}
-          pluginInput={pluginInput}
           cmdInput={cmdInput}
-          orderedPluginList={orderedPluginList}
           orderedCmdList={orderedCmdList}
-          setPlugin={setPlugin}
-          setPluginInput={setPluginInput}
           setCmd={setCmd}
           setCmdInput={setCmdInput}
         />

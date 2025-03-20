@@ -61,7 +61,7 @@ const zh: Translation = {
     command: '命令：',
     icon: '图标：',
     empty: '暂无自定义快捷工具，可以通过下方表单添加。',
-    disableNativeToolbar: '禁用选中文本时的系统工具条',
+    disableNativeToolbar: '禁用选中文本时的系统工具条（针对编辑模式）',
     noResult: '没有找到结果',
     pickItem: '请选择……',
     mouseSelectionOnly: '仅在鼠标选择时显示 Popkit',
